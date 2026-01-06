@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login | SecureSphere Chat</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 100%);
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    /* Animated background elements */
+    .bg-circle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(102, 204, 255, 0.1);
+      z-index: -1;
+    }
+    
+    .circle-1 {
+      width: 300px;
+      height: 300px;
+      top: -100px;
+      left: -100px;
+    }
+    
+    .circle-2 {
+      width: 200px;
+      height: 200px;
+      bottom: -50px;
+      right: -50px;
+      background: rgba(76, 175, 80, 0.1);
+    }
+    
+    .circle-3 {
+      width: 150px;
+      height: 150px;
+      top: 50%;
+      right: 20%;
+      background: rgba(255, 193, 7, 0.1);
+    }
+    
+    .login-container {
+      display: flex;
+      width: 900px;
+      height: 550px;
+      background: rgba(28, 28, 28, 0.8);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(10px);
+    }
+    
+    .login-left {
+      flex: 1;
+      background: linear-gradient(135deg, #6cf 0%, #39f 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 40px;
+      color: #000;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .login-left::before {
+      content: '';
+      position: absolute;
+      width: 200%;
+      height: 200%;
+      background: rgba(255, 255, 255, 0.1);
+      transform: rotate(45deg);
+      animation: shine 8s infinite linear;
+    }
+    
+    @keyframes shine {
+      0% { left: -100%; top: -100%; }
+      100% { left: 100%; top: 100%; }
+    }
+    
+    .logo {
+      font-size: 42px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      z-index: 1;
+    }
+    
+    .welcome-text {
+      text-align: center;
+      z-index: 1;
+    }
+    
+    .welcome-text h2 {
+      font-size: 28px;
+      margin-bottom: 15px;
+    }
+    
+    .welcome-text p {
+      font-size: 16px;
+      opacity: 0.9;
+    }
+    
+    .features {
+      margin-top: 40px;
+      z-index: 1;
+    }
+    
+    .feature {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .feature i {
+      font-size: 20px;
+      margin-right: 15px;
+      background: rgba(0, 0, 0, 0.2);
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+    }
+    
+    .login-right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 40px;
+    }
+    
+    .login-box {
+      width: 100%;
+      max-width: 350px;
+    }
+    
+    .login-box h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 28px;
+      font-weight: 600;
+      background: linear-gradient(45deg, #6cf, #39f);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .input-group {
+      position: relative;
+      margin-bottom: 25px;
+    }
+    
+    .input-group i {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #6cf;
+      font-size: 18px;
+    }
+    
+    .input-group input {
+      width: 100%;
+      padding: 15px 15px 15px 45px;
+      background: #2c2c2c;
+      border: 2px solid transparent;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+    
+    .input-group input:focus {
+      border-color: #6cf;
+      outline: none;
+      box-shadow: 0 0 15px rgba(102, 204, 255, 0.3);
+    }
+    
+    .input-group input::placeholder {
+      color: #888;
+    }
+    
+    .login-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(45deg, #6cf, #39f);
+      color: #000;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(102, 204, 255, 0.4);
+    }
+    
+    .login-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(102, 204, 255, 0.6);
+    }
+    
+    .login-btn:active {
+      transform: translateY(0);
+    }
+    
+    .error-message {
+      background: #d32f2f;
+      color: white;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 20px;
+      text-align: center;
+      display: none;
+      font-size: 14px;
+      animation: shake 0.5s ease;
+    }
+    
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-5px); }
+      40%, 80% { transform: translateX(5px); }
+    }
+    
+    .signup-link {
+      text-align: center;
+      margin-top: 25px;
+      font-size: 14px;
+      color: #888;
+    }
+    
+    .signup-link a {
+      color: #6cf;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    
+    .signup-link a:hover {
+      text-decoration: underline;
+    }
+    
+    .loader {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top: 3px solid #6cf;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* Responsive design */
+    @media (max-width: 900px) {
+      .login-container {
+        flex-direction: column;
+        height: auto;
+        width: 100%;
+        max-width: 500px;
+      }
+      
+      .login-left {
+        padding: 30px;
+      }
+      
+      .features {
+        display: none;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .login-right {
+        padding: 20px;
+      }
+      
+      .login-box {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Background elements -->
+  <div class="bg-circle circle-1"></div>
+  <div class="bg-circle circle-2"></div>
+  <div class="bg-circle circle-3"></div>
+
+  <div class="login-container">
+    <div class="login-left">
+      <div class="logo">SecureSphere</div>
+      <div class="welcome-text">
+        <h2>Welcome Back!</h2>
+        <p>Sign in to continue your conversation with AI</p>
+      </div>
+      <div class="features">
+        <div class="feature">
+          <i class="fas fa-robot"></i>
+          <span>Smart AI Assistant</span>
+        </div>
+        <div class="feature">
+          <i class="fas fa-comments"></i>
+          <span>Real-time Chat</span>
+        </div>
+        <div class="feature">
+          <i class="fas fa-shield-alt"></i>
+          <span>Secure & Private</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="login-right">
+      <div class="login-box">
+        <h2>Login to SecureSphere</h2>
+        <form id="loginForm">
+          <div class="input-group">
+            <i class="fas fa-envelope"></i>
+            <input type="email" name="email" placeholder="Email" required />
+          </div>
+          
+          <div class="input-group">
+            <i class="fas fa-lock"></i>
+            <input type="password" name="password" placeholder="Password" required />
+          </div>
+          
+          <button type="submit" class="login-btn" id="loginButton">
+            <span id="buttonText">Login</span>
+            <div class="loader" id="loader"></div>
+          </button>
+        </form>
+        
+        <div class="error-message" id="errorMsg"></div>
+        
+        <div class="signup-link">
+          Don't have an account? <a href="/signup.html">Create one</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById("loginForm");
+    const errorMsg = document.getElementById("errorMsg");
+    const loginButton = document.getElementById("loginButton");
+    const buttonText = document.getElementById("buttonText");
+    const loader = document.getElementById("loader");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      
+      // Show loading state
+      buttonText.style.display = "none";
+      loader.style.display = "block";
+      loginButton.disabled = true;
+      
+      const formData = new FormData(form);
+      let response;
+
+      try {
+        response = await fetch("/login", {
+          method: "POST",
+          body: new URLSearchParams(formData)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          // ✅ Store entire user object
+          localStorage.setItem("user", JSON.stringify({
+            name: result.name,
+            email: result.email,
+            uid: result.uid
+          }));
+          window.location.href = "/main.html";
+        } else {
+          // Show error message
+          errorMsg.textContent = result.message || "Invalid email or password.";
+          errorMsg.style.display = "block";
+          
+          // Hide error message after 5 seconds
+          setTimeout(() => {
+            errorMsg.style.display = "none";
+          }, 5000);
+        }
+      } catch (error) {
+        errorMsg.textContent = "Network error. Please check your connection and try again.";
+        errorMsg.style.display = "block";
+        
+        // Hide error message after 5 seconds
+        setTimeout(() => {
+          errorMsg.style.display = "none";
+        }, 5000);
+      } finally {
+        // Restore button state
+        buttonText.style.display = "block";
+        loader.style.display = "none";
+        loginButton.disabled = false;
+      }
+    });
+
+    // Add input event listeners to hide error when user starts typing
+    const inputs = form.querySelectorAll('input');
+    inputs.forEach(input => {
+      input.addEventListener('input', () => {
+        if (errorMsg.style.display === 'block') {
+          errorMsg.style.display = 'none';
+        }
+      });
+    });
+  </script>
+</body>
+</html>

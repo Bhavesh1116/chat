@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Friends - SecureSphere Chat</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { 
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box; 
+    }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+      color: #fff;
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 0;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #333;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      background: linear-gradient(45deg, #6cf, #39f);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 700;
+    }
+
+    .nav-icons {
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav-icons a {
+      color: #6cf;
+      font-size: 20px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .nav-icons a:hover {
+      color: #39f;
+      transform: scale(1.1);
+    }
+
+    .card {
+      background: #1a1a1a;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 25px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-title {
+      font-size: 18px;
+      margin-bottom: 15px;
+      color: #6cf;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-title i {
+      font-size: 20px;
+    }
+
+    .search-box {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .search-box input {
+      flex: 1;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 12px;
+      background: #252525;
+      color: #fff;
+      font-size: 16px;
+      outline: none;
+    }
+
+    .search-box input:focus {
+      box-shadow: 0 0 0 2px #6cf;
+    }
+
+    .search-box button {
+      padding: 12px 20px;
+      background: linear-gradient(45deg, #6cf, #39f);
+      color: #000;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .search-box button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 204, 255, 0.3);
+    }
+
+    .friend-list {
+      max-height: 400px;
+      overflow-y: auto;
+      padding-right: 5px;
+    }
+
+    .friend-list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .friend-list::-webkit-scrollbar-thumb {
+      background: #6cf;
+      border-radius: 10px;
+    }
+
+    .friend {
+      padding: 15px;
+      background: #252525;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+
+    .friend:hover {
+      background: #2a2a2a;
+      transform: translateX(5px);
+    }
+
+    .friend-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .friend-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, #6cf, #39f);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .friend-name {
+      font-weight: 500;
+    }
+
+    .friend-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .online { 
+      background: #0f0; 
+      box-shadow: 0 0 8px #0f0;
+    }
+    
+    .offline { 
+      background: #888; 
+    }
+
+    .friend-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .delete-btn {
+      background: #f44336;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .delete-btn:hover {
+      background: #d32f2f;
+      transform: scale(1.05);
+    }
+
+    .mailbox-popup {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      width: 320px;
+      background: #1f1f1f;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      display: none;
+      flex-direction: column;
+      gap: 15px;
+      z-index: 100;
+      border: 1px solid #333;
+    }
+
+    .mailbox-popup.active {
+      display: flex;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .mailbox-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .mailbox-header h3 {
+      color: #6cf;
+      font-size: 18px;
+    }
+
+    .close-mailbox {
+      background: none;
+      border: none;
+      color: #f66;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .mail-request {
+      background: #2a2a2a;
+      padding: 15px;
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .mail-request-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .mail-request-avatar {
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, #6cf, #39f);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    .accept-btn {
+      background: linear-gradient(45deg, #6cf, #39f);
+      color: #000;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      min-width: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    .accept-btn:hover:not(:disabled) {
+      transform: scale(1.05);
+    }
+
+    .accept-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .loading-spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid transparent;
+      border-top: 2px solid #000;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .no-requests {
+      text-align: center;
+      color: #888;
+      padding: 20px;
+      font-style: italic;
+    }
+
+    .no-friends {
+      text-align: center;
+      color: #888;
+      padding: 30px;
+      font-style: italic;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #2a2a2a;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 8px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toast.error {
+      background: #d32f2f;
+    }
+
+    .toast.success {
+      background: #388e3c;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 15px;
+      }
+      
+      .header h1 {
+        font-size: 24px;
+      }
+      
+      .mailbox-popup {
+        width: 90%;
+        right: 5%;
+        left: 5%;
+      }
+      
+      .friend-actions {
+        flex-direction: column;
+        gap: 5px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1><i class="fas fa-user-friends"></i> My Friends</h1>
+    <div class="nav-icons">
+      <a href="/dashboard.html" title="Dashboard"><i class="fas fa-home"></i></a>
+      <a href="/privatechat.html" title="Chat"><i class="fas fa-comment"></i></a>
+      <a href="#" onclick="toggleMailbox()" title="Friend Requests">
+        <i class="fas fa-envelope"></i>
+        <span id="requestCount" style="display: none;"></span>
+      </a>
+      <a href="#" onclick="logout()" title="Logout"><i class="fas fa-sign-out-alt"></i></a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <i class="fas fa-user-plus"></i>
+      <span>Add New Friend</span>
+    </div>
+    <div class="search-box">
+      <input type="text" id="uidInput" placeholder="Enter your friend's UID">
+      <button onclick="sendRequest()"><i class="fas fa-plus"></i> Send Request</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <i class="fas fa-users"></i>
+      <span>Your Friends</span>
+    </div>
+    <div class="friend-list" id="friendList">
+      <div class="no-friends">No friends yet. Send some requests to get started!</div>
+    </div>
+  </div>
+</div>
+
+<div class="mailbox-popup" id="mailboxPopup">
+  <div class="mailbox-header">
+    <h3><i class="fas fa-envelope"></i> Friend Requests</h3>
+    <button class="close-mailbox" onclick="toggleMailbox()">×</button>
+  </div>
+  <div class="no-requests">No pending requests</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const mailboxPopup = document.getElementById("mailboxPopup");
+  const uidInput = document.getElementById("uidInput");
+  const friendList = document.getElementById("friendList");
+  const toast = document.getElementById("toast");
+  const requestCount = document.getElementById("requestCount");
+
+  // Check if user is logged in
+  const storedUser = localStorage.getItem("user");
+  if (!storedUser) window.location.href = "/login.html";
+
+  const { name, uid } = JSON.parse(storedUser);
+  let friends = [];
+  let requests = [];
+  let acceptingRequests = new Set(); // Track requests being accepted
+
+  function showToast(message, type = "default") {
+    toast.textContent = message;
+    toast.className = "toast " + type;
+    toast.style.display = "flex";
+    
+    setTimeout(() => {
+      toast.style.display = "none";
+    }, 3000);
+  }
+
+  function toggleMailbox() {
+    mailboxPopup.classList.toggle("active");
+    if (mailboxPopup.classList.contains("active")) {
+      getRequests();
+    }
+  }
+
+  function logout() {
+    localStorage.clear();
+    window.location.href = "/login.html";
+  }
+
+  async function sendRequest() {
+    const toUid = uidInput.value.trim();
+    if (!toUid) {
+      showToast("Please enter a UID", "error");
+      return;
+    }
+
+    // Check if already friends
+    if (friends.some(f => f.uid === toUid)) {
+      showToast("This user is already your friend", "error");
+      uidInput.value = "";
+      return;
+    }
+
+    try {
+      const res = await fetch("/send-request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fromUid: uid, toUid })
+      });
+      
+      const msg = await res.text();
+      
+      if (res.ok) {
+        showToast("Friend request sent successfully", "success");
+        uidInput.value = "";
+      } else {
+        showToast(msg, "error");
+      }
+    } catch (error) {
+      showToast("Error sending request", "error");
+    }
+  }
+
+  async function getRequests() {
+    try {
+      const res = await fetch(`/get-requests?uid=${uid}`);
+      const names = await res.json();
+      requests = names;
+
+      // Update request count badge
+      if (names.length > 0) {
+        requestCount.textContent = names.length;
+        requestCount.style.display = 'inline';
+      } else {
+        requestCount.style.display = 'none';
+      }
+
+      const mailboxContent = mailboxPopup.querySelector(".no-requests");
+      
+      if (names.length === 0) {
+        mailboxContent.style.display = "block";
+        mailboxContent.textContent = "No pending requests";
+      } else {
+        mailboxContent.style.display = "none";
+        
+        // Clear existing requests except the no-requests message
+        Array.from(mailboxPopup.children).forEach(child => {
+          if (!child.classList.contains("no-requests") && !child.classList.contains("mailbox-header")) {
+            child.remove();
+          }
+        });
+
+        names.forEach(n => {
+          const div = document.createElement("div");
+          div.className = "mail-request";
+          div.innerHTML = `
+            <div class="mail-request-info">
+              <div class="mail-request-avatar">${n.charAt(0).toUpperCase()}</div>
+              <div>${n} sent you a request</div>
+            </div>
+            <button class="accept-btn" onclick="acceptFriend('${n}', this)" ${acceptingRequests.has(n) ? 'disabled' : ''}>
+              ${acceptingRequests.has(n) ? '<div class="loading-spinner"></div>' : '<i class="fas fa-check"></i>'}
+              ${acceptingRequests.has(n) ? 'Accepting...' : 'Accept'}
+            </button>
+          `;
+          mailboxPopup.appendChild(div);
+        });
+      }
+    } catch (error) {
+      showToast("Error loading requests", "error");
+    }
+  }
+
+  async function acceptFriend(friendName, button) {
+    // Prevent multiple clicks
+    if (acceptingRequests.has(friendName)) {
+      return;
+    }
+
+    acceptingRequests.add(friendName);
+    
+    // Update button to loading state
+    if (button) {
+      button.innerHTML = '<div class="loading-spinner"></div> Accepting...';
+      button.disabled = true;
+    }
+
+    try {
+      const res = await fetch("/get-users");
+      const users = await res.json();
+      const match = users.find(u => u.name === friendName);
+      
+      if (!match) {
+        showToast("User not found", "error");
+        return;
+      }
+
+      const confirmAdd = await fetch("/accept-request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fromUid: match.uid, toUid: uid })
+      });
+      
+      const msg = await confirmAdd.text();
+      showToast("Friend added successfully", "success");
+      
+      // Remove the request from UI immediately
+      if (button) {
+        button.closest('.mail-request').style.opacity = '0';
+        setTimeout(() => {
+          button.closest('.mail-request').remove();
+        }, 300);
+      }
+      
+      getFriends();
+      getRequests();
+    } catch (error) {
+      showToast("Error accepting request", "error");
+    } finally {
+      acceptingRequests.delete(friendName);
+    }
+  }
+
+  async function deleteFriend(friendUid, friendName) {
+    if (!confirm(`Are you sure you want to remove ${friendName} from your friends?`)) {
+      return;
+    }
+
+    try {
+      // You'll need to implement this endpoint on your server
+      const res = await fetch("/delete-friend", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ uid1: uid, uid2: friendUid })
+      });
+      
+      if (res.ok) {
+        showToast("Friend removed successfully", "success");
+        getFriends();
+      } else {
+        showToast("Error removing friend", "error");
+      }
+    } catch (error) {
+      showToast("Error removing friend", "error");
+    }
+  }
+
+  async function getFriends() {
+    try {
+      const res = await fetch(`/get-friends?uid=${uid}`);
+      const data = await res.json();
+      friends = data;
+      
+      friendList.innerHTML = "";
+      
+      if (data.length === 0) {
+        const noFriends = document.createElement("div");
+        noFriends.className = "no-friends";
+        noFriends.textContent = "No friends yet. Send some requests to get started!";
+        friendList.appendChild(noFriends);
+        return;
+      }
+      
+      data.forEach(f => {
+        const div = document.createElement("div");
+        div.className = "friend";
+        div.innerHTML = `
+          <div class="friend-info">
+            <div class="friend-avatar">${f.name.charAt(0).toUpperCase()}</div>
+            <div class="friend-name">${f.name}</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 15px;">
+            <div class="friend-status">
+              <div class="status ${f.online ? 'online' : 'offline'}"></div>
+              <span>${f.online ? 'Online' : 'Offline'}</span>
+            </div>
+            <div class="friend-actions">
+              <button class="delete-btn" onclick="deleteFriend('${f.uid}', '${f.name}')">
+                <i class="fas fa-trash"></i> Remove
+              </button>
+            </div>
+          </div>
+        `;
+        friendList.appendChild(div);
+      });
+    } catch (error) {
+      showToast("Error loading friends", "error");
+    }
+  }
+
+  // Load data on page load
+  window.onload = () => {
+    getFriends();
+    getRequests();
+    
+    // Refresh friends list every 30 seconds to update online status
+    setInterval(getFriends, 30000);
+    
+    // Refresh requests every minute
+    setInterval(getRequests, 60000);
+  };
+</script>
+
+</body>
+</html>

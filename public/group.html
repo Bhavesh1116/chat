@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Group Chat - SecureSphere Chat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 100%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Animated background elements */
+        .bg-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(102, 204, 255, 0.1);
+            z-index: -1;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .circle-1 {
+            width: 200px;
+            height: 200px;
+            top: -80px;
+            left: -80px;
+            animation-delay: 0s;
+        }
+
+        .circle-2 {
+            width: 150px;
+            height: 150px;
+            bottom: -40px;
+            right: -40px;
+            background: rgba(76, 175, 80, 0.1);
+            animation-delay: 2s;
+        }
+
+        .circle-3 {
+            width: 100px;
+            height: 100px;
+            top: 50%;
+            right: 10%;
+            background: rgba(255, 193, 7, 0.1);
+            animation-delay: 4s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(180deg); }
+        }
+
+        /* Groups View */
+        #groupsView {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(28, 28, 28, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(102, 204, 255, 0.2);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(45deg, #6cf, #39f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .create-group-btn {
+            background: linear-gradient(45deg, #6cf, #39f);
+            color: #000;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .create-group-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 204, 255, 0.3);
+        }
+
+        .groups-container {
+            flex: 1;
+            padding: 15px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            overflow-y: auto;
+        }
+
+        .group-item {
+            background: rgba(28, 28, 28, 0.85);
+            border-radius: 12px;
+            padding: 15px;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(102, 204, 255, 0.1);
+            margin-bottom: 15px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+        }
+
+        .group-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 204, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .group-item:hover::before {
+            left: 100%;
+        }
+
+        .group-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            border-color: rgba(102, 204, 255, 0.3);
+        }
+
+        .group-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .group-members {
+            font-size: 11px;
+            color: #888;
+            font-family: monospace;
+        }
+
+        .no-groups {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 15px;
+            text-align: center;
+            color: #888;
+        }
+
+        .no-groups i {
+            font-size: 60px;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, #6cf, #39f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .no-groups p {
+            font-size: 14px;
+            max-width: 300px;
+            line-height: 1.4;
+        }
+
+        /* Chat View */
+        #chatView {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            padding: 15px;
+            background: rgba(28, 28, 28, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(102, 204, 255, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .back-to-groups {
+            background: none;
+            border: none;
+            color: #6cf;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .chat-group-name {
+            font-size: 18px;
+            font-weight: 600;
+            flex: 1;
+            background: linear-gradient(45deg, #6cf, #39f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .group-action-btn {
+            background: none;
+            border: none;
+            color: #6cf;
+            font-size: 16px;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .group-action-btn:hover {
+            background: rgba(102, 204, 255, 0.1);
+            box-shadow: 0 4px 12px rgba(102, 204, 255, 0.3);
+        }
+
+        .group-action-btn.active {
+            background: linear-gradient(45deg, #6cf, #39f);
+            color: #000;
+        }
+
+        .messages-container {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 12px 15px;
+            border-radius: 18px;
+            margin-bottom: 8px;
+            backdrop-filter: blur(8px);
+        }
+
+        .message.sent {
+            background: linear-gradient(45deg, #6cf, #39f);
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+            color: #000;
+        }
+
+        .message.received {
+            background: rgba(28, 28, 28, 0.85);
+            border: 1px solid rgba(102, 204, 255, 0.1);
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+        }
+
+        .message.bot, .message.system {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            align-self: center;
+            text-align: center;
+        }
+
+        .message-sender {
+            font-weight: 600;
+            font-size: 12px;
+            margin-bottom: 4px;
+            color: #6cf;
+        }
+
+        .message-time {
+            font-size: 10px;
+            text-align: right;
+            margin-top: 5px;
+            color: #888;
+        }
+
+        /* Input Area */
+        .input-area {
+            padding: 15px;
+            background: rgba(28, 28, 28, 0.95);
+            border-top: 1px solid rgba(102, 204, 255, 0.2);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(42, 42, 42, 0.85);
+            color: #fff;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .message-input:focus {
+            border: 2px solid #6cf;
+            outline: none;
+            box-shadow: 0 0 10px rgba(102, 204, 255, 0.3);
+        }
+
+        .send-btn {
+            background: linear-gradient(45deg, #6cf, #39f);
+            color: #000;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(102, 204, 255, 0.3);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: rgba(28, 28, 28, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid rgba(102, 204, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(102, 204, 255, 0.2);
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+            background: linear-gradient(45deg, #6cf, #39f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: #6cf;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .friends-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+
+        .friend-checkbox {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid rgba(102, 204, 255, 0.1);
+            color: #fff;
+        }
+
+        .friend-checkbox:last-child {
+            border-bottom: none;
+        }
+
+        .friend-checkbox input {
+            margin-right: 10px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .cancel-btn {
+            background: rgba(102, 204, 255, 0.1);
+            color: #6cf;
+            border: 1px solid rgba(102, 204, 255, 0.3);
+        }
+
+        .create-btn {
+            background: linear-gradient(45deg, #6cf, #39f);
+            color: #000;
+        }
+
+        .modal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 204, 255, 0.3);
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background: rgba(28, 28, 28, 0.95);
+            padding: 12px 0;
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(102, 204, 255, 0.1);
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            padding: 10px 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            color: #888;
+            min-width: 60px;
+            touch-action: manipulation;
+        }
+
+        .nav-item.active {
+            color: #6cf;
+            background: rgba(102, 204, 255, 0.15);
+        }
+
+        .nav-item i {
+            font-size: 18px;
+        }
+
+        .nav-item span {
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            color: #6cf;
+            transform: translateY(-2px);
+        }
+
+        /* Mobile-Specific Media Queries */
+        @media (max-width: 768px) {
+            .circle-1, .circle-2, .circle-3 {
+                display: none;
+            }
+
+            .header {
+                padding: 12px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .create-group-btn {
+                font-size: 13px;
+                padding: 8px 12px;
+            }
+
+            .groups-container {
+                padding: 12px;
+            }
+
+            .group-item {
+                padding: 12px;
+            }
+
+            .group-name {
+                font-size: 15px;
+            }
+
+            .group-members {
+                font-size: 10px;
+            }
+
+            .chat-header {
+                padding: 12px;
+            }
+
+            .chat-group-name {
+                font-size: 16px;
+            }
+
+            .group-action-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 15px;
+            }
+
+            .message-input {
+                font-size: 13px;
+                padding: 10px 12px;
+            }
+
+            .send-btn {
+                width: 40px;
+                height: 40px;
+            }
+
+            .modal-content {
+                padding: 15px;
+            }
+
+            .modal-header h3 {
+                font-size: 16px;
+            }
+
+            .friend-checkbox {
+                font-size: 14px;
+                padding: 8px;
+            }
+
+            .modal-btn {
+                font-size: 13px;
+                padding: 8px 15px;
+            }
+
+            .no-groups {
+                padding: 30px 10px;
+            }
+
+            .no-groups i {
+                font-size: 50px;
+            }
+
+            .no-groups p {
+                font-size: 13px;
+            }
+
+            .nav-item {
+                padding: 8px 10px;
+            }
+
+            .nav-item i {
+                font-size: 16px;
+            }
+
+            .nav-item span {
+                font-size: 9px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .chat-header {
+                flex-wrap: wrap;
+            }
+
+            .group-action-btn {
+                width: 30px;
+                height: 30px;
+                font-size: 14px;
+            }
+
+            .message {
+                max-width: 90%;
+                padding: 10px 12px;
+            }
+
+            .message-sender {
+                font-size: 11px;
+            }
+
+            .message-time {
+                font-size: 9px;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeInUp 0.5s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background elements -->
+    <div class="bg-circle circle-1"></div>
+    <div class="bg-circle circle-2"></div>
+    <div class="bg-circle circle-3"></div>
+
+    <!-- Groups View -->
+    <div id="groupsView">
+        <div class="header">
+            <h1>Group Chats</h1>
+            <button class="create-group-btn" onclick="showCreateGroupModal()">
+                <i class="fas fa-plus"></i> New Group
+            </button>
+        </div>
+        
+        <div class="groups-container" id="groupsList">
+            <div class="no-groups">
+                <i class="fas fa-users"></i>
+                <p>No groups yet</p>
+                <p>Create your first group to start chatting</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat View -->
+    <div id="chatView">
+        <div class="chat-header">
+            <button class="back-to-groups" onclick="showGroupsView()">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <div class="chat-group-name" id="chatGroupName">Group Name</div>
+            <button class="group-action-btn" onclick="showAddMemberModal()" title="Add Members">
+                <i class="fas fa-user-plus"></i>
+            </button>
+            <button class="group-action-btn" onclick="toggleBot()" id="botToggleBtn" title="Toggle Bot">
+                <i class="fas fa-robot"></i>
+            </button>
+            <button class="group-action-btn" onclick="showRenameModal()" title="Rename Group">
+                <i class="fas fa-edit"></i>
+            </button>
+            <button class="group-action-btn" onclick="clearGroupChat()" title="Clear Chat">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+
+        <!-- Messages Container -->
+        <div class="messages-container" id="messagesContainer">
+            <div class="message bot">
+                <div class="message-text">Welcome to the group! Type your messages here.</div>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="input-area">
+            <input type="text" class="message-input" id="messageInput" placeholder="Type a message..." onkeypress="handleKeyPress(event)">
+            <button class="send-btn" onclick="sendMessage()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Create Group Modal -->
+    <div class="modal" id="createGroupModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New Group</h3>
+                <button class="close-modal" onclick="closeModal('createGroupModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <input type="text" class="message-input" id="groupNameInput" placeholder="Enter group name" style="width: 100%; margin-bottom: 15px;">
+            <div class="friends-list" id="modalFriendsList">
+                <div class="friend-checkbox"><input type="checkbox"> Loading friends...</div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn cancel-btn" onclick="closeModal('createGroupModal')">Cancel</button>
+                <button class="modal-btn create-btn" onclick="createGroup()">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Member Modal -->
+    <div class="modal" id="addMemberModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Members</h3>
+                <button class="close-modal" onclick="closeModal('addMemberModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="friends-list" id="addMemberFriendsList">
+                <div class="friend-checkbox"><input type="checkbox"> Loading friends...</div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn cancel-btn" onclick="closeModal('addMemberModal')">Cancel</button>
+                <button class="modal-btn create-btn" onclick="addMembersToGroup()">Add</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rename Modal -->
+    <div class="modal" id="renameModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Rename Group</h3>
+                <button class="close-modal" onclick="closeModal('renameModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <input type="text" class="message-input" id="renameInput" placeholder="Enter new group name" style="width: 100%; margin-bottom: 15px;">
+            <div class="modal-actions">
+                <button class="modal-btn cancel-btn" onclick="closeModal('renameModal')">Cancel</button>
+                <button class="modal-btn create-btn" onclick="renameGroup()">Rename</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation 
+    <nav class="bottom-nav">
+        <div class="nav-item" onclick="navigate('chat')">
+            <i class="fas fa-comments"></i>
+            <span>Chats</span>
+        </div>
+        <div class="nav-item active" onclick="navigate('group')">
+            <i class="fas fa-users"></i>
+            <span>Groups</span>
+        </div>
+        <div class="nav-item" onclick="navigate('call')">
+            <i class="fas fa-phone"></i>
+            <span>Calls</span>
+        </div>
+        <div class="nav-item" onclick="navigate('settings')">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+        </div>
+    </nav> -->
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        let socket = null;
+        let currentUser = null;
+        let currentGroup = null;
+        let friendsList = [];
+        let groupsList = [];
+        let selectedFriends = [];
+        let selectedMembers = [];
+        let botActive = false;
+        let messageQueue = [];
+        let isSending = false;
+
+        // Initialize the group chat
+        function initGroupChat() {
+            currentUser = JSON.parse(localStorage.getItem("user"));
+            if (!currentUser || !currentUser.uid) {
+                alert("Please login first");
+                window.location.href = "/login.html";
+                return;
+            }
+
+            socket = io();
+            setupSocketEvents();
+            loadUserGroups();
+            loadFriends();
+        }
+
+        // Setup socket events
+        function setupSocketEvents() {
+            socket.on("group-message", (data) => {
+                if (currentGroup && data.groupId === currentGroup.groupId) {
+                    const isDuplicate = messageQueue.some(msg => 
+                        msg.sender === data.sender && 
+                        msg.text === data.text && 
+                        Math.abs(new Date(msg.timestamp) - new Date(data.timestamp)) < 1000
+                    );
+                    
+                    if (!isDuplicate) {
+                        messageQueue.push(data);
+                        displayMessage(data);
+                    }
+                }
+            });
+
+            socket.on("bot-reply", (data) => {
+                if (currentGroup && data.groupId === currentGroup.groupId) {
+                    const messagesContainer = document.getElementById('messagesContainer');
+                    const thinkingMessages = messagesContainer.querySelectorAll('.message.bot .message-text');
+                    thinkingMessages.forEach(msg => {
+                        if (msg.textContent === "Bot is thinking...") {
+                            msg.closest('.message').remove();
+                        }
+                    });
+                    
+                    const isDuplicate = messageQueue.some(msg => 
+                        msg.sender === "BotX" && 
+                        msg.text === data.text
+                    );
+                    
+                    if (!isDuplicate) {
+                        displayMessage({
+                            sender: "BotX",
+                            senderName: "BotX",
+                            text: data.text,
+                            timestamp: new Date(),
+                            groupId: currentGroup.groupId
+                        });
+                        messageQueue.push({
+                            sender: "BotX",
+                            senderName: "BotX",
+                            text: data.text,
+                            timestamp: new Date(),
+                            groupId: currentGroup.groupId
+                        });
+                    }
+                }
+            });
+
+            socket.on("group-typing", (userName) => {
+                console.log(userName + " is typing...");
+            });
+
+            socket.on("group-renamed", (data) => {
+                if (currentGroup && data.groupId === currentGroup.groupId) {
+                    currentGroup.name = data.newName;
+                    document.getElementById('chatGroupName').textContent = data.newName;
+                    loadUserGroups();
+                }
+            });
+
+            socket.on("chat-cleared", (data) => {
+                if (currentGroup && data.groupId === currentGroup.groupId) {
+                    document.getElementById('messagesContainer').innerHTML = `
+                        <div class="message bot">
+                            <div class="message-text">Chat cleared by ${data.clearedBy}</div>
+                        </div>
+                    `;
+                    messageQueue = [];
+                }
+            });
+        }
+
+        // Toxicity & Phishing Check Functions
+        async function checkToxicity(message) {
+            try {
+                const response = await fetch('/check-toxicity', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message })
+                });
+                const result = await response.json();
+                return result.isToxic;
+            } catch (err) {
+                console.error("Toxicity check error:", err);
+                return false;
+            }
+        }
+
+        async function checkPhishing(text) {
+            try {
+                const response = await fetch('/check-phishing', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text })
+                });
+                const data = await response.json();
+                return data.isPhishing;
+            } catch (err) {
+                console.error("Phishing check error:", err);
+                return false;
+            }
+        }
+
+        // Group Warning System
+        function getGroupWarnings(groupId) { 
+            return parseInt(localStorage.getItem(`group_${groupId}_warnings`) || '0'); 
+        }
+
+        function setGroupWarnings(groupId, count) { 
+            localStorage.setItem(`group_${groupId}_warnings`, count.toString()); 
+            localStorage.setItem(`group_${groupId}_warnings_time`, Date.now().toString());
+        }
+
+        function addGroupWarning(groupId) { 
+            if (shouldResetGroupWarnings(groupId)) {
+                resetGroupWarnings(groupId);
+            }
+            
+            const newWarnings = getGroupWarnings(groupId) + 1;
+            setGroupWarnings(groupId, newWarnings); 
+            
+            return newWarnings;
+        }
+
+        function shouldResetGroupWarnings(groupId) {
+            const lastWarningTime = parseInt(localStorage.getItem(`group_${groupId}_warnings_time`) || '0');
+            if (!lastWarningTime) return false;
+            const twentyFourHours = 24 * 60 * 60 * 1000;
+            return (Date.now() - lastWarningTime) > twentyFourHours;
+        }
+
+        function resetGroupWarnings(groupId) {
+            localStorage.removeItem(`group_${groupId}_warnings`);
+            localStorage.removeItem(`group_${groupId}_warnings_time`);
+        }
+
+        // System Message Display
+        function displaySystemMessage(text) {
+            const messagesContainer = document.getElementById('messagesContainer');
+            const messageEl = document.createElement('div');
+            messageEl.className = 'message system';
+            messageEl.innerHTML = `
+                <div class="message-text system-message">${text}</div>
+            `;
+            messagesContainer.appendChild(messageEl);
+            scrollToBottom();
+        }
+
+        // Load user's groups
+        async function loadUserGroups() {
+            try {
+                const response = await fetch(`/get-user-groups?userId=${currentUser.uid}`);
+                if (!response.ok) throw new Error("Failed to load groups");
+                
+                groupsList = await response.json();
+                displayGroups();
+            } catch (error) {
+                console.error("Error loading groups:", error);
+                document.getElementById('groupsList').innerHTML = `
+                    <div class="no-groups">
+                        <i class="fas fa-users"></i>
+                        <p>Error loading groups</p>
+                    </div>`;
+            }
+        }
+
+        // Load friends list
+        async function loadFriends() {
+            try {
+                const response = await fetch(`/get-friends?uid=${currentUser.uid}`);
+                if (!response.ok) throw new Error("Failed to load friends");
+                
+                friendsList = await response.json();
+            } catch (error) {
+                console.error("Error loading friends:", error);
+            }
+        }
+
+        // Display groups in the list
+        function displayGroups() {
+            const groupsListEl = document.getElementById('groupsList');
+            
+            if (groupsList.length === 0) {
+                groupsListEl.innerHTML = `
+                    <div class="no-groups">
+                        <i class="fas fa-users"></i>
+                        <p>No groups yet</p>
+                        <p>Create your first group to start chatting</p>
+                    </div>`;
+                return;
+            }
+
+            groupsListEl.innerHTML = groupsList.map((group, index) => `
+                <div class="group-item fade-in" style="animation-delay: ${index * 0.1}s" onclick="openChat('${group.groupId}')">
+                    <div class="group-name">${group.name}</div>
+                    <div class="group-members">${group.participants.length} members</div>
+                </div>
+            `).join('');
+        }
+
+        // Open chat for a group
+        async function openChat(groupId) {
+            try {
+                currentGroup = groupsList.find(g => g.groupId === groupId);
+                if (!currentGroup) return;
+
+                document.getElementById('groupsView').style.display = 'none';
+                document.getElementById('chatView').style.display = 'flex';
+                
+                document.getElementById('chatGroupName').textContent = currentGroup.name;
+                
+                messageQueue = [];
+                
+                const response = await fetch(`/get-group-messages?groupId=${groupId}`);
+                if (!response.ok) throw new Error("Failed to load messages");
+                
+                const messages = await response.json();
+                displayMessages(messages);
+                
+                socket.emit('join-group', groupId);
+                
+            } catch (error) {
+                console.error("Error opening chat:", error);
+                alert("Error loading chat");
+            }
+        }
+
+        // Show groups view (go back from chat)
+        function showGroupsView() {
+            document.getElementById('chatView').style.display = 'none';
+            document.getElementById('groupsView').style.display = 'flex';
+            currentGroup = null;
+            messageQueue = [];
+        }
+
+        // Display messages in chat
+        function displayMessages(messages) {
+            const messagesContainer = document.getElementById('messagesContainer');
+            messagesContainer.innerHTML = '';
+            
+            if (messages.length === 0) {
+                messagesContainer.innerHTML = `
+                    <div class="message bot">
+                        <div class="message-text">No messages yet. Start the conversation!</div>
+                    </div>`;
+                return;
+            }
+            
+            messages.forEach(message => {
+                displayMessage(message);
+            });
+            
+            scrollToBottom();
+        }
+
+        // Display a single message
+        function displayMessage(message) {
+            const messagesContainer = document.getElementById('messagesContainer');
+            const isCurrentUser = message.sender === currentUser.uid;
+            const isBot = message.sender === 'BotX';
+            const isSystem = message.sender === 'System';
+            
+            const messageEl = document.createElement('div');
+            messageEl.className = `message ${isCurrentUser ? 'sent' : isBot ? 'bot' : isSystem ? 'system' : 'received'} fade-in`;
+            
+            messageEl.innerHTML = `
+                ${!isCurrentUser && !isBot && !isSystem ? `<div class="message-sender">${message.senderName || message.sender}</div>` : ''}
+                ${isBot || isSystem ? `<div class="message-sender">${message.senderName || 'System'}</div>` : ''}
+                <div class="message-text">${message.text}</div>
+                <div class="message-time">${new Date(message.timestamp).toLocaleTimeString()}</div>
+            `;
+            
+            messagesContainer.appendChild(messageEl);
+            scrollToBottom();
+        }
+
+        // Send message with safety checks
+        async function sendMessage() {
+            if (isSending) return;
+            
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            
+            if (!text || !currentGroup) return;
+
+            isSending = true;
+
+            if (await checkPhishing(text)) {
+                const warnings = addGroupWarning(currentGroup.groupId);
+                displaySystemMessage(`🚫 Phishing link detected! Warning ${warnings}/5`);
+                input.value = '';
+                isSending = false;
+                return;
+            }
+
+            if (await checkToxicity(text)) {
+                const warnings = addGroupWarning(currentGroup.groupId);
+                displaySystemMessage(`⚠️ Toxic message blocked! Warning ${warnings}/5`);
+                input.value = '';
+                isSending = false;
+                return;
+            }
+
+            const messageData = {
+                groupId: currentGroup.groupId,
+                sender: currentUser.uid,
+                senderName: currentUser.name,
+                text: text,
+                timestamp: new Date()
+            };
+
+            messageQueue.push(messageData);
+            
+            socket.emit('group-message', messageData);
+            
+            displayMessage(messageData);
+
+            if (botActive && text.toLowerCase().includes("bot")) {
+                triggerBotResponse(text);
+            }
+
+            input.value = '';
+            isSending = false;
+        }
+
+        // Trigger bot response
+        function triggerBotResponse(userMessage) {
+            const prompt = userMessage.replace(/bot/gi, "").trim();
+            
+            if (!prompt) return;
+            
+            const messagesContainer = document.getElementById('messagesContainer');
+            const typingIndicator = document.createElement('div');
+            typingIndicator.className = 'message bot';
+            typingIndicator.innerHTML = `
+                <div class="message-sender">BotX</div>
+                <div class="message-text">Bot is thinking...</div>
+            `;
+            messagesContainer.appendChild(typingIndicator);
+            scrollToBottom();
+            
+            socket.emit('bot-message', {
+                groupId: currentGroup.groupId,
+                prompt: prompt,
+                userId: currentUser.uid,
+                messageId: Date.now()
+            });
+        }
+
+        // Toggle bot
+        function toggleBot() {
+            if (botActive) {
+                deactivateBot();
+            } else {
+                activateBot();
+            }
+        }
+
+        // Activate bot
+        function activateBot() {
+            botActive = true;
+            document.getElementById('botToggleBtn').classList.add('active');
+            
+            displayMessage({
+                sender: "BotX",
+                senderName: "BotX",
+                text: "Bot activated! Type your question and include the word 'bot' for responses.",
+                timestamp: new Date(),
+                groupId: currentGroup.groupId
+            });
+        }
+
+        // Deactivate bot
+        function deactivateBot() {
+            botActive = false;
+            document.getElementById('botToggleBtn').classList.remove('active');
+            
+            displayMessage({
+                sender: "BotX",
+                senderName: "BotX",
+                text: "Bot deactivated.",
+                timestamp: new Date(),
+                groupId: currentGroup.groupId
+            });
+        }
+
+        // Clear group chat
+        async function clearGroupChat() {
+            if (!currentGroup || !confirm("Are you sure you want to clear all messages in this group?")) return;
+
+            try {
+                const response = await fetch('/clear-group-chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        groupId: currentGroup.groupId
+                    })
+                });
+
+                if (response.ok) {
+                    document.getElementById('messagesContainer').innerHTML = `
+                        <div class="message bot">
+                            <div class="message-text">Chat cleared by ${currentUser.name}</div>
+                        </div>
+                    `;
+                    messageQueue = [];
+                    
+                    socket.emit('clear-chat', {
+                        groupId: currentGroup.groupId,
+                        clearedBy: currentUser.name
+                    });
+                } else {
+                    alert('Error clearing chat');
+                }
+            } catch (error) {
+                console.error('Error clearing chat:', error);
+                alert('Error clearing chat');
+            }
+        }
+
+        // Handle key press (Enter to send)
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // Scroll to bottom of messages
+        function scrollToBottom() {
+            const messagesContainer = document.getElementById('messagesContainer');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Show create group modal
+        function showCreateGroupModal() {
+            const modal = document.getElementById('createGroupModal');
+            const friendsListEl = document.getElementById('modalFriendsList');
+            
+            friendsListEl.innerHTML = friendsList.map(friend => `
+                <div class="friend-checkbox">
+                    <input type="checkbox" value="${friend.uid}" onchange="toggleFriendSelection(this)">
+                    ${friend.name}
+                </div>
+            `).join('');
+            
+            modal.style.display = 'flex';
+            selectedFriends = [];
+        }
+
+        // Show add member modal
+        function showAddMemberModal() {
+            if (!currentGroup) return;
+
+            const modal = document.getElementById('addMemberModal');
+            const friendsListEl = document.getElementById('addMemberFriendsList');
+            
+            const availableFriends = friendsList.filter(friend => 
+                !currentGroup.participants.includes(friend.uid)
+            );
+            
+            friendsListEl.innerHTML = availableFriends.map(friend => `
+                <div class="friend-checkbox">
+                    <input type="checkbox" value="${friend.uid}" onchange="toggleMemberSelection(this)">
+                    ${friend.name}
+                </div>
+            `).join('');
+            
+            modal.style.display = 'flex';
+            selectedMembers = [];
+        }
+
+        // Show rename modal
+        function showRenameModal() {
+            document.getElementById('renameModal').style.display = 'flex';
+            document.getElementById('renameInput').value = currentGroup.name;
+        }
+
+        // Toggle friend selection
+        function toggleFriendSelection(checkbox) {
+            if (checkbox.checked) {
+                selectedFriends.push(checkbox.value);
+            } else {
+                selectedFriends = selectedFriends.filter(uid => uid !== checkbox.value);
+            }
+        }
+
+        // Toggle member selection
+        function toggleMemberSelection(checkbox) {
+            if (checkbox.checked) {
+                selectedMembers.push(checkbox.value);
+            } else {
+                selectedMembers = selectedMembers.filter(uid => uid !== checkbox.value);
+            }
+        }
+
+        // Create new group
+        async function createGroup() {
+            const groupName = document.getElementById('groupNameInput').value.trim();
+            
+            if (!groupName) {
+                alert('Please enter a group name');
+                return;
+            }
+
+            if (selectedFriends.length === 0) {
+                alert('Please select at least one friend');
+                return;
+            }
+
+            try {
+                const response = await fetch('/create-group', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: groupName,
+                        createdBy: currentUser.uid,
+                        participants: [currentUser.uid, ...selectedFriends]
+                    })
+                });
+
+                if (response.ok) {
+                    closeModal('createGroupModal');
+                    loadUserGroups();
+                    alert('Group created successfully!');
+                } else {
+                    alert('Error creating group');
+                }
+            } catch (error) {
+                console.error('Error creating group:', error);
+                alert('Error creating group');
+            }
+        }
+
+        // Rename group
+        async function renameGroup() {
+            const newName = document.getElementById('renameInput').value.trim();
+            
+            if (!newName) {
+                alert('Please enter a new group name');
+                return;
+            }
+
+            try {
+                const response = await fetch('/rename-group', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        groupId: currentGroup.groupId,
+                        newName: newName
+                    })
+                });
+
+                if (response.ok) {
+                    closeModal('renameModal');
+                    socket.emit('group-rename', {
+                        groupId: currentGroup.groupId,
+                        newName: newName
+                    });
+                } else {
+                    alert('Error renaming group');
+                }
+            } catch (error) {
+                console.error('Error renaming group:', error);
+                alert('Error renaming group');
+            }
+        }
+
+        // Add members to group
+        async function addMembersToGroup() {
+            if (!currentGroup || selectedMembers.length === 0) return;
+
+            try {
+                for (const userId of selectedMembers) {
+                    await fetch('/add-to-group', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            groupId: currentGroup.groupId,
+                            userId: userId
+                        })
+                    });
+                }
+
+                closeModal('addMemberModal');
+                alert('Members added successfully!');
+                loadUserGroups();
+            } catch (error) {
+                console.error('Error adding members:', error);
+                alert('Error adding members');
+            }
+        }
+
+        // Close modal
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+      /*  // Navigation function
+        function navigate(page) {
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => item.classList.remove('active'));
+            
+            event.currentTarget.classList.add('active');
+            
+            switch(page) {
+                case 'chat':
+                    window.location.href = '/main.html';
+                    break;
+                case 'group':
+                    // Already on group page
+                    break;
+                case 'call':
+                    window.location.href = '/call.html';
+                    break;
+                case 'settings':
+                    window.location.href = '/settings.html';
+                    break;
+            }
+        }
+*/
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            initGroupChat();
+        });
+    </script>
+</body>
+</html>
+
+
+
+

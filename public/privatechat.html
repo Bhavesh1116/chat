@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Private Chat</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #0a0a0a;
+      color: #e6e6e6;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background: #0a0a0a;
+    }
+    
+    .chat-header {
+      padding: 12px 20px;
+      background: #1a1a1a;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #2a2a2a;
+    }
+    
+    .chat-user {
+      display: flex;
+      align-items: center;
+    }
+    
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #3a3a3a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 10px;
+      font-weight: bold;
+      color: #00af9c;
+    }
+    
+    .header-icons {
+      display: flex;
+      gap: 15px;
+    }
+    
+    .icon-btn {
+      background: none;
+      border: none;
+      color: #a0a0a0;
+      cursor: pointer;
+      font-size: 18px;
+    }
+    
+    .icon-btn:hover {
+      color: #00af9c;
+    }
+    
+    #chat {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%230d0d0d"/><path d="M0 50 L100 50 M50 0 L50 100" stroke="%231a1a1a" stroke-width="1"/></svg>');
+    }
+    
+    .message {
+      max-width: 70%;
+      margin-bottom: 15px;
+      position: relative;
+    }
+    
+    
+    .message-content {
+      padding: 10px 15px;
+      border-radius: 8px;
+      position: relative;
+    }
+    
+    .message.mine {
+      margin-left: auto;
+    }
+    
+    .message.mine .message-content {
+      background: #005c4b;
+      border-top-right-radius: 2px;
+    }
+    
+    .message.other .message-content {
+      background: #202020;
+      border-top-left-radius: 2px;
+    }
+    
+    .message-sender {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: #00af9c;
+    }
+    
+    .message-text {
+      word-break: break-word;
+    }
+    
+    .message-meta {
+      text-align: right;
+      font-size: 11px;
+      color: #999;
+      margin-top: 4px;
+    }
+    
+    .input-container {
+      padding: 15px 20px;
+      background: #1a1a1a;
+      display: flex;
+      align-items: center;
+      border-top: 1px solid #2a2a2a;
+    }
+    
+    .input-action {
+      margin-right: 12px;
+      color: #a0a0a0;
+      cursor: pointer;
+      font-size: 20px;
+    }
+    
+    .input-action:hover {
+      color: #00af9c;
+    }
+    
+    #messageInput {
+      flex: 1;
+      background: #2d2d2d;
+      border: none;
+      border-radius: 20px;
+      padding: 12px 18px;
+      color: #e6e6e6;
+      outline: none;
+      font-size: 16px;
+    }
+    
+    #sendBtn {
+      margin-left: 12px;
+      background: #00af9c;
+      color: white;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    #sendBtn:hover {
+      background: #008f7e;
+    }
+    
+    .bot-indicator {
+      display: inline-block;
+      background: #00af9c;
+      color: white;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 10px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+
+    /* Message actions styles */
+    .message-actions {
+      position: absolute;
+      top: 0;
+      right: -30px;
+      background: #222;
+      border-radius: 4px;
+      display: none;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    
+    .message:hover .message-actions {
+      display: flex;
+    }
+    
+    .action-btn {
+      padding: 8px;
+      cursor: pointer;
+      color: #a0a0a0;
+    }
+    
+    .action-btn:hover {
+      color: #00af9c;
+    }
+    
+    .reaction-btn {
+      padding: 4px;
+      font-size: 12px;
+    }
+    
+    .message-reaction {
+      margin-top: 5px;
+      font-size: 12px;
+      color: #00af9c;
+    }
+    
+    .reply-indicator {
+      background: rgba(0, 175, 156, 0.1);
+      border-left: 3px solid #00af9c;
+      padding: 8px;
+      margin-bottom: 5px;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    
+    .edit-mode {
+      background: rgba(255, 193, 7, 0.1);
+      border: 1px solid #ffc107;
+    }
+    
+    .typing-indicator {
+      padding: 5px 15px;
+      color: #999;
+      font-style: italic;
+      font-size: 13px;
+      display: none;
+    }
+    
+    .media-preview {
+      margin-top: 10px;
+      max-width: 300px;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    
+    .media-preview img {
+      width: 100%;
+      height: auto;
+      border-radius: 5px;
+    }
+
+    .bot-message {
+      font-style: italic;
+      color: #a0a0a0;
+    }
+
+    .system-message {
+      text-align: center;
+      color: #888;
+      font-style: italic;
+      margin: 10px 0;
+    }
+
+    .warning-message {
+      text-align: center;
+      color: #ff6b6b;
+      font-style: italic;
+      margin: 10px 0;
+      background: rgba(255, 107, 107, 0.1);
+      padding: 8px;
+      border-radius: 8px;
+    }
+
+    .phishing-warning {
+      text-align: center;
+      color: #ff9c2a;
+      font-style: italic;
+      margin: 10px 0;
+      background: rgba(255, 156, 42, 0.1);
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #ff9c2a;
+    }
+
+    .locked-chat {
+      background: #3a3a3a !important;
+      cursor: not-allowed !important;
+      opacity: 0.6;
+    }
+
+    .countdown-timer {
+      color: #ff6b6b;
+      font-weight: bold;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-header">
+      <div class="chat-user">
+        <div class="user-avatar" id="userAvatar">U</div>
+        <div class="user-details">
+          <div class="user-name" id="userName">User</div>
+          <div class="user-status" id="userStatus">Online</div>
+        </div>
+      </div>
+      <div class="header-icons">
+        <button class="icon-btn" onclick="toggleBot()"><i class="fas fa-robot"></i></button>
+        <button class="icon-btn" onclick="clearChat()"><i class="fas fa-trash"></i></button>
+      </div>
+    </div>
+    
+    <div id="chat">
+      <div class="typing-indicator" id="typingIndicator"></div>
+      <!-- Messages will appear here -->
+    </div>
+    
+    <div class="input-container">
+      <div class="input-action" onclick="toggleEmojiPicker()"><i class="far fa-smile"></i></div>
+      <div class="input-action" onclick="document.getElementById('fileInput').click()">
+        <i class="fas fa-paperclip"></i>
+        <input type="file" id="fileInput" style="display: none;" onchange="handleFileSelect(event)" accept="image/*">
+      </div>
+      <input type="text" id="messageInput" placeholder="Type a message..." onkeypress="handleKeyPress(event)" oninput="handleTyping()">
+      <button id="sendBtn"><i class="fas fa-paper-plane"></i></button>
+    </div>
+  </div>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  // ✅ Get current user
+  const currentUser = JSON.parse(localStorage.getItem("user"));
+  if (!currentUser || !currentUser.uid || !currentUser.name) {
+    alert("❌ User not logged in. Redirecting...");
+    window.location.href = "login.html";
+  }
+
+  // ✅ Set user info in UI
+  document.getElementById('userName').textContent = currentUser.name;
+  document.getElementById('userAvatar').textContent = currentUser.name.charAt(0).toUpperCase();
+
+  // ✅ Friend UID
+  const params = new URLSearchParams(window.location.search);
+  const friendUid = params.get("uid");
+  if (!friendUid) {
+    alert("❌ Friend UID missing in URL!");
+    throw new Error("Friend UID missing");
+  }
+
+  const room = [currentUser.uid, friendUid].sort().join("_");
+
+  // ✅ Toxicity & Phishing check
+  async function checkToxicity(message) {
+    try {
+      const response = await fetch('/check-toxicity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message })
+      });
+      const result = await response.json();
+      return result.isToxic;
+    } catch (err) {
+      console.error("Toxicity check error:", err);
+      return false;
+    }
+  }
+
+  async function checkPhishing(text) {
+    try {
+      const response = await fetch('/check-phishing', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text })
+      });
+      const data = await response.json();
+      return data.isPhishing;
+    } catch (err) {
+      console.error("Phishing check error:", err);
+      return false;
+    }
+  }
+
+  // ✅ IMPROVED WARNING SYSTEM
+  function getWarnings() { 
+    return parseInt(localStorage.getItem(`${room}_warnings`) || '0'); 
+  }
+
+  function setWarnings(count) { 
+    localStorage.setItem(`${room}_warnings`, count.toString()); 
+    localStorage.setItem(`${room}_warnings_time`, Date.now().toString());
+    updateWarningDisplay(); 
+    return count; 
+  }
+
+  function addWarning() { 
+    if (shouldResetWarnings()) {
+      resetWarnings();
+    }
+    
+    const newWarnings = getWarnings() + 1;
+    setWarnings(newWarnings); 
+    
+    // ✅ Increasing timer: 30s, 60s, 120s, 240s, 480s
+    const lockDurations = [30, 60, 120, 240, 480];
+    const lockDuration = lockDurations[Math.min(newWarnings-1, lockDurations.length-1)];
+    
+    if(newWarnings >= 5) {
+      startChatLock(lockDuration);
+      return {warnings: newWarnings, locked: true, duration: lockDuration};
+    }
+    return {warnings: newWarnings, locked: false};
+  }
+
+  function shouldResetWarnings() {
+    const lastWarningTime = parseInt(localStorage.getItem(`${room}_warnings_time`) || '0');
+    if (!lastWarningTime) return false;
+    const twentyFourHours = 24 * 60 * 60 * 1000;
+    return (Date.now() - lastWarningTime) > twentyFourHours;
+  }
+
+  function resetWarnings() {
+    localStorage.removeItem(`${room}_warnings`);
+    localStorage.removeItem(`${room}_warnings_time`);
+    clearChatLock();
+    updateWarningDisplay();
+  }
+
+  function startChatLock(seconds = 30) {
+    const unlockTime = Math.floor(Date.now()/1000) + seconds;
+    localStorage.setItem(`${room}_lock_time`, unlockTime.toString());
+    updateWarningDisplay();
+    startLockCountdown();
+  }
+
+  function isChatLocked() { 
+    const t = getLockTime();
+    return t ? (t - Math.floor(Date.now()/1000)) > 0 : false;
+  }
+
+  function getLockTime() { 
+    return parseInt(localStorage.getItem(`${room}_lock_time`) || '0');
+  }
+
+  function clearChatLock() { 
+    localStorage.removeItem(`${room}_lock_time`); 
+    updateWarningDisplay(); 
+  }
+
+  function startLockCountdown() {
+    const interval = setInterval(() => {
+      const remaining = getLockTime() - Math.floor(Date.now()/1000);
+      if(remaining <= 0) {
+        clearInterval(interval); 
+        clearChatLock(); 
+        addSystemMessage("🔓 Chat unlocked. You can message now.");
+        return;
+      }
+      updateCountdownDisplay(remaining);
+    }, 1000);
+  }
+
+  function updateCountdownDisplay(seconds){ 
+    const s = document.getElementById('userStatus'); 
+    if(s) {
+      const hours = Math.floor(seconds / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      const secs = seconds % 60;
+      
+      let timeString = '';
+      if (hours > 0) timeString = `${hours}h ${minutes}m ${secs}s`;
+      else if (minutes > 0) timeString = `${minutes}m ${secs}s`;
+      else timeString = `${secs}s`;
+      
+      s.innerHTML = `Locked: <span class="countdown-timer">${timeString}</span>`; 
+    }
+  }
+
+  function updateWarningDisplay(){
+    const w = getWarnings(); 
+    const s = document.getElementById('userStatus');
+    
+    if(isChatLocked()){
+      document.getElementById("messageInput").disabled = true;
+      document.getElementById("messageInput").classList.add('locked-chat');
+      document.getElementById("messageInput").placeholder = "Chat locked - too many warnings";
+      document.getElementById("sendBtn").disabled = true;
+      
+      if(s) {
+        const remaining = getLockTime() - Math.floor(Date.now()/1000);
+        updateCountdownDisplay(remaining);
+        s.style.color = '#ff6b6b';
+      }
+    } else {
+      document.getElementById("messageInput").disabled = false;
+      document.getElementById("messageInput").classList.remove('locked-chat');
+      document.getElementById("messageInput").placeholder = "Type a message...";
+      document.getElementById("sendBtn").disabled = false;
+      
+      if(s) {
+        s.textContent = w > 0 ? `Online (Warnings: ${w}/5)` : 'Online'; 
+        s.style.color = '';
+      }
+    }
+  }
+
+  // ✅ Message display functions
+  function addMessage(sender, text, mine = false, isBot = false){ 
+    const el = document.createElement("div"); 
+    el.className = "message " + (mine ? "mine" : "other"); 
+    el.dataset.sender = sender; 
+    el.dataset.text = text;
+    
+    const ts = new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+    el.innerHTML = `
+      ${!mine ? `<div class="message-sender">${sender} ${isBot ? '<span class="bot-indicator">BOT</span>' : ''}</div>` : ''}
+      <div class="message-content">
+        <div class="message-text ${isBot ? 'bot-message' : ''}">${text}</div>
+        <div class="message-meta">${ts} ${mine ? '<i class="fas fa-check-double" style="color: #00af9c; margin-left: 3px;"></i>' : ''}</div>
+      </div>
+      <div class="message-actions">
+        <div class="action-btn reaction-btn" onclick="reactToMessage(this,'😊')">😊</div>
+        <div class="action-btn" onclick="replyToMessage(this)"><i class="fas fa-reply"></i></div>
+        ${mine && !isBot ? `
+          <div class="action-btn" onclick="editMessage(this)"><i class="fas fa-edit"></i></div>
+          <div class="action-btn" onclick="deleteMessage(this)"><i class="fas fa-trash"></i></div>
+        ` : ''}
+      </div>
+    `;
+    
+    document.getElementById("chat").appendChild(el);
+    document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight;
+  }
+
+  function addSystemMessage(text){
+    const el = document.createElement("div");
+    el.className = "system-message";
+    el.textContent = text;
+    document.getElementById("chat").appendChild(el);
+    document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight;
+  }
+
+  function addWarningMessage(text){
+    const el = document.createElement("div");
+    el.className = "warning-message";
+    el.textContent = text;
+    document.getElementById("chat").appendChild(el);
+    document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight;
+  }
+
+  function addPhishingMessage(text){
+    const el = document.createElement("div");
+    el.className = "phishing-warning";
+    el.textContent = text;
+    document.getElementById("chat").appendChild(el);
+    document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight;
+  }
+
+  function addImageMessage(sender, imageData, mine = false){ 
+    const el = document.createElement("div"); 
+    el.className = "message " + (mine ? "mine" : "other"); 
+    const ts = new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+    
+    el.innerHTML = `
+      ${!mine ? `<div class="message-sender">${sender}</div>` : ''}
+      <div class="message-content">
+        <div class="media-preview"><img src="${imageData}" alt="Shared image"></div>
+        <div class="message-meta">${ts} ${mine ? '<i class="fas fa-check-double" style="color: #00af9c; margin-left: 3px;"></i>' : ''}</div>
+      </div>
+      <div class="message-actions">
+        <div class="action-btn reaction-btn" onclick="reactToMessage(this,'😊')">😊</div>
+        <div class="action-btn" onclick="replyToMessage(this)"><i class="fas fa-reply"></i></div>
+      </div>
+    `;
+    
+    document.getElementById("chat").appendChild(el);
+    document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight;
+  }
+
+  // ✅ Socket setup
+  const socket = io();
+  let isSending = false, botActive = false, isEditing = false, editingMessageId = null, replyToMessageId = null;
+
+  socket.on("connect", () => {
+    console.log("Connected:", socket.id);
+    socket.emit("set_name", {uid: currentUser.uid, name: currentUser.name});
+    socket.emit("join-room", room);
+    
+    // ✅ 24 hours check on load
+    if (shouldResetWarnings()) {
+      resetWarnings();
+      addSystemMessage("⚠️ Warning system has been reset after 24 hours.");
+    }
+    
+    updateWarningDisplay();
+    if(isChatLocked()) startLockCountdown();
+    
+    // ✅ Load previous messages
+    fetch(`/get-room-messages?room=${room}`)
+      .then(r => r.json())
+      .then(msgs => {
+        msgs.forEach(m => {
+          if(!m.text.includes('__signal')) 
+            addMessage(m.sender, m.text, m.sender === currentUser.name, m.sender === 'BotX');
+        });
+      })
+      .catch(console.error);
+  });
+
+  socket.on("private-message", data => { 
+    if(!data.text.includes('__signal')) 
+      addMessage(data.sender, data.text, data.sender === currentUser.name); 
+  });
+  
+  socket.on("bot-reply", data => { 
+    addMessage(data.sender, data.text, false, true); 
+  });
+  
+  socket.on("image-message", data => { 
+    if(data.room === room) 
+      addImageMessage(data.sender, data.imageData, data.sender === currentUser.name); 
+  });
+  
+  socket.on("typing", data => { 
+    if(data.room === room && data.sender !== currentUser.name){ 
+      const i = document.getElementById('typingIndicator'); 
+      i.textContent = `${data.sender} is typing...`; 
+      i.style.display = 'block'; 
+      clearTimeout(window.typingTimeout); 
+      window.typingTimeout = setTimeout(() => { i.style.display = 'none'; }, 2000); 
+    } 
+  });
+  
+  socket.on("message", data => { 
+    if(data.sender === "System" && data.text.includes("Bot")) 
+      addSystemMessage(data.text); 
+  });
+
+  // ✅ Send message function
+  async function sendMessage(){
+    if(isSending) return;
+    const text = document.getElementById("messageInput").value.trim();
+    if(!text) return;
+
+    if(isChatLocked()){ 
+      const remaining = getLockTime() - Math.floor(Date.now()/1000); 
+      addWarningMessage(`Chat locked! Please wait ${remaining} seconds.`); 
+      document.getElementById("messageInput").value = ""; 
+      return;  
+    }
+    
+    if(text === ">>bot" || text === "<<bot"){ 
+      isSending = true; 
+      socket.emit("message", text); 
+      document.getElementById("messageInput").value = ""; 
+      isSending = false; 
+      return;  
+    }
+
+    // ✅ Phishing check
+    if(await checkPhishing(text)){ 
+      addPhishingWarning(text); 
+      document.getElementById("messageInput").value = ""; 
+      return; 
+    }
+
+    // ✅ Toxicity check
+    if(await checkToxicity(text)){ 
+      const result = addWarning();
+      addWarningMessage(`⚠️ Warning ${result.warnings}/5: Your message was blocked for toxic behavior`);
+      
+      if(result.locked) {
+        addWarningMessage(`🔒 Chat locked for ${result.duration} seconds due to multiple warnings!`);
+      }
+      
+      document.getElementById("messageInput").value = ""; 
+      return; 
+    }
+
+    // ✅ Send message if all clear
+    isSending = true;
+    socket.emit("private-message", {room, sender: currentUser.name, text});
+    document.getElementById("messageInput").value = "";
+    
+    if(isEditing){ 
+      isEditing = false; 
+      editingMessageId = null; 
+      document.getElementById('messageInput').placeholder = "Type a message..."; 
+      document.getElementById('messageInput').classList.remove('edit-mode'); 
+    }
+    
+    if(replyToMessageId) replyToMessageId = null;
+    setTimeout(() => { isSending = false; }, 300);
+  }
+
+  function addPhishingWarning(text){
+    addPhishingMessage(`🚫 Phishing link detected! Message deleted: "${text.length > 50 ? text.substring(0,50) + '...' : text}"`);
+  }
+
+  // ✅ UI interaction functions
+  function handleTyping(){
+    if(socket && room) socket.emit("typing", {room, sender: currentUser.name});
+  }
+
+  function handleKeyPress(e){
+    if(e.key === "Enter") sendMessage();
+  }
+
+  function toggleBot(){
+    if(botActive){ 
+      socket.emit("message", "<<bot"); 
+      botActive = false; 
+    } else { 
+      socket.emit("message", ">>bot"); 
+      botActive = true; 
+    }
+  }
+
+  function clearChat(){
+    if(confirm("Clear all messages in this chat?")){
+      fetch('/clear-room', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({room})
+      })
+      .then(() => {
+        document.getElementById("chat").innerHTML = '<div class="typing-indicator" id="typingIndicator"></div>';
+        addSystemMessage("Chat cleared successfully");
+        // ✅ Warnings reset nahi honge
+      })
+      .catch(console.error);
+    }
+  }
+
+  function reactToMessage(btn, reaction){
+    const el = btn.closest('.message');
+    let container = el.querySelector('.message-reaction');
+    if(!container){
+      container = document.createElement('div');
+      container.className = 'message-reaction';
+      el.querySelector('.message-content').appendChild(container);
+    }
+    container.textContent = `${reaction} (You)`;
+  }
+
+  function replyToMessage(btn){
+    const el = btn.closest('.message');
+    const sender = el.dataset.sender;
+    const text = el.dataset.text;
+    document.getElementById('messageInput').placeholder = `Replying to ${sender}: ${text}`;
+    document.getElementById('messageInput').focus();
+    replyToMessageId = el;
+  }
+
+  function editMessage(btn){
+    const el = btn.closest('.message');
+    const text = el.dataset.text;
+    document.getElementById('messageInput').value = text;
+    document.getElementById('messageInput').placeholder = "Editing message...";
+    document.getElementById('messageInput').classList.add('edit-mode');
+    document.getElementById('messageInput').focus();
+    isEditing = true;
+    editingMessageId = el;
+  }
+
+  function deleteMessage(btn){
+    if(confirm("Delete this message?")){
+      const el = btn.closest('.message');
+      el.remove();
+    }
+  }
+
+  function handleFileSelect(event){
+    const file = event.target.files[0];
+    if(!file) return;
+    if(file.type.startsWith('image/')){
+      const reader = new FileReader();
+      reader.onload = function(e){
+        const imgData = e.target.result;
+        addImageMessage(currentUser.name, imgData, true);
+        socket.emit("image-message", {room, sender: currentUser.name, imageData: imgData});
+      }
+      reader.readAsDataURL(file);
+    } else {
+      alert('Please select an image file');
+    }
+    event.target.value = '';
+  }
+
+  function toggleEmojiPicker(){
+    const emojis = ['😀','😂','😍','🥰','😎','🙏','🔥','👍','❤️','🎉'];
+    const picker = document.createElement('div');
+    picker.style.position = 'absolute';
+    picker.style.bottom = '60px';
+    picker.style.right = '20px';
+    picker.style.background = '#222';
+    picker.style.borderRadius = '10px';
+    picker.style.padding = '10px';
+    picker.style.display = 'grid';
+    picker.style.gridTemplateColumns = 'repeat(5,1fr)';
+    picker.style.gap = '5px';
+    picker.style.zIndex = '1000';
+    
+    emojis.forEach(emoji => {
+      const span = document.createElement('span');
+      span.textContent = emoji;
+      span.style.cursor = 'pointer';
+      span.style.fontSize = '20px';
+      span.onclick = () => {
+        document.getElementById('messageInput').value += emoji; 
+        document.body.removeChild(picker);
+      }
+      picker.appendChild(span);
+    });
+    
+    document.body.appendChild(picker);
+    setTimeout(() => {
+      const clickHandler = (e) => { 
+        if(!picker.contains(e.target)){
+          document.body.removeChild(picker); 
+          document.removeEventListener('click', clickHandler);
+        } 
+      };
+      document.addEventListener('click', clickHandler);
+    }, 100);
+  }
+
+  // ✅ Event listeners
+  document.getElementById("sendBtn").addEventListener("click", sendMessage);
+  document.getElementById("messageInput").addEventListener("keypress", handleKeyPress);
+  document.getElementById("messageInput").addEventListener("input", handleTyping);
+
+  // ✅ Initialize on load
+  window.addEventListener('load', function() {
+    updateWarningDisplay();
+  });
+</script>
+
+      
+        
+</body>
+</html>

@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>SecureSphere | Chat Home</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 100%);
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+    }
+    
+    /* Animated background elements */
+    .bg-circle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(102, 204, 255, 0.1);
+      z-index: -1;
+      animation: float 6s ease-in-out infinite;
+    }
+    
+    .circle-1 {
+      width: 200px;
+      height: 200px;
+      top: -80px;
+      left: -80px;
+      animation-delay: 0s;
+    }
+    
+    .circle-2 {
+      width: 150px;
+      height: 150px;
+      bottom: -40px;
+      right: -40px;
+      background: rgba(76, 175, 80, 0.1);
+      animation-delay: 2s;
+    }
+    
+    .circle-3 {
+      width: 100px;
+      height: 100px;
+      top: 50%;
+      right: 10%;
+      background: rgba(255, 193, 7, 0.1);
+      animation-delay: 4s;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-15px) rotate(180deg); }
+    }
+    
+    /* Header */
+    header {
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      background: rgba(28, 28, 28, 0.95);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid rgba(102, 204, 255, 0.2);
+    }
+    
+    .logo {
+      font-size: 24px;
+      font-weight: 700;
+      background: linear-gradient(45deg, #6cf, #39f);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .search-container {
+      width: 100%;
+      position: relative;
+      max-width: 400px;
+    }
+    
+    .search-container i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #6cf;
+      font-size: 16px;
+      z-index: 2;
+    }
+    
+    .search-container input {
+      width: 100%;
+      padding: 12px 12px 12px 40px;
+      background: rgba(42, 42, 42, 0.85);
+      border: 2px solid transparent;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+    
+    .search-container input:focus {
+      border-color: #6cf;
+      outline: none;
+      box-shadow: 0 0 10px rgba(102, 204, 255, 0.3);
+    }
+    
+    .search-container input::placeholder {
+      color: #888;
+    }
+    
+    /* Main Content */
+    .main-container {
+      flex: 1;
+      padding: 15px;
+      max-width: 100%;
+      margin: 0 auto;
+      width: 100%;
+    }
+    
+    .section-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 15px;
+      background: linear-gradient(45deg, #6cf, #39f);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-align: center;
+    }
+    
+    .friends-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    /* Friend Card */
+    .friend-card {
+      background: rgba(28, 28, 28, 0.85);
+      border-radius: 12px;
+      padding: 15px;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(102, 204, 255, 0.1);
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      touch-action: manipulation; /* Improve touch scrolling */
+    }
+    
+    .friend-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(102, 204, 255, 0.1), transparent);
+      transition: left 0.5s;
+    }
+    
+    .friend-card:hover::before {
+      left: 100%;
+    }
+    
+    .friend-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      border-color: rgba(102, 204, 255, 0.3);
+    }
+    
+    .friend-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    
+    .friend-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, #6cf, #39f);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 600;
+      color: #000;
+    }
+    
+    .friend-info {
+      flex: 1;
+    }
+    
+    .friend-name {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .friend-uid {
+      font-size: 11px;
+      color: #888;
+      font-family: monospace;
+    }
+    
+    .status {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-left: 4px;
+    }
+    
+    .online {
+      background: #6bff6b;
+      box-shadow: 0 0 8px #6bff6b;
+    }
+    
+    .offline {
+      background: #888;
+    }
+    
+    /* Action Buttons */
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    
+    .btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-width: 100px;
+      touch-action: manipulation;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(45deg, #6cf, #39f);
+      color: #000;
+    }
+    
+    .btn-secondary {
+      background: rgba(102, 204, 255, 0.1);
+      color: #6cf;
+      border: 1px solid rgba(102, 204, 255, 0.3);
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 204, 255, 0.3);
+    }
+    
+    /* Floating Action Buttons */
+    .floating-buttons {
+      position: fixed;
+      bottom: 90px;
+      right: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      z-index: 1000;
+    }
+    
+    .floating-btn {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: none;
+      background: linear-gradient(45deg, #6cf, #39f);
+      color: #000;
+      font-size: 18px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      touch-action: manipulation;
+    }
+    
+    .floating-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 15px rgba(102, 204, 255, 0.5);
+    }
+    
+    .floating-btn.bot {
+      background: linear-gradient(45deg, #4aa8ff, #39f);
+    }
+    
+    /* Bottom Navigation */
+    .bottom-nav {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      background: rgba(28, 28, 28, 0.95);
+      padding: 12px 0;
+      backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(102, 204, 255, 0.1);
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      z-index: 100;
+    }
+    
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      padding: 10px 12px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      color: #888;
+      min-width: 60px;
+      touch-action: manipulation;
+    }
+    
+    .nav-item.active {
+      color: #6cf;
+      background: rgba(102, 204, 255, 0.15);
+    }
+    
+    .nav-item i {
+      font-size: 18px;
+    }
+    
+    .nav-item span {
+      font-size: 10px;
+      font-weight: 500;
+    }
+    
+    .nav-item:hover {
+      color: #6cf;
+      transform: translateY(-2px);
+    }
+    
+    /* Empty State */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 15px;
+      text-align: center;
+      color: #888;
+    }
+    
+    .empty-icon {
+      font-size: 60px;
+      margin-bottom: 15px;
+      background: linear-gradient(45deg, #6cf, #39f);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .empty-state h3 {
+      font-size: 20px;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+    
+    .empty-state p {
+      font-size: 14px;
+      max-width: 300px;
+      line-height: 1.4;
+    }
+    
+    /* Mobile-Specific Media Queries */
+    @media (max-width: 768px) {
+      .circle-1, .circle-2, .circle-3 {
+        display: none; /* Remove background circles on mobile for performance */
+      }
+      
+      header {
+        padding: 12px;
+      }
+      
+      .logo {
+        font-size: 22px;
+      }
+      
+      .search-container input {
+        font-size: 13px;
+        padding: 10px 10px 10px 36px;
+      }
+      
+      .search-container i {
+        font-size: 15px;
+        left: 10px;
+      }
+      
+      .main-container {
+        padding: 12px;
+      }
+      
+      .section-title {
+        font-size: 18px;
+      }
+      
+      .friend-card {
+        padding: 12px;
+      }
+      
+      .friend-header {
+        gap: 10px;
+      }
+      
+      .friend-avatar {
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
+      }
+      
+      .friend-name {
+        font-size: 15px;
+      }
+      
+      .friend-uid {
+        font-size: 10px;
+      }
+      
+      .action-buttons {
+        flex-direction: row;
+        gap: 8px;
+      }
+      
+      .btn {
+        font-size: 12px;
+        padding: 8px;
+      }
+      
+      .floating-buttons {
+        bottom: 80px;
+        right: 12px;
+      }
+      
+      .floating-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 16px;
+      }
+      
+      .nav-item {
+        padding: 8px 10px;
+      }
+      
+      .nav-item i {
+        font-size: 16px;
+      }
+      
+      .nav-item span {
+        font-size: 9px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .friend-header {
+        flex-direction: row; /* Keep horizontal for better use of space */
+        align-items: center;
+      }
+      
+      .friend-name {
+        font-size: 14px;
+      }
+      
+      .friend-uid {
+        font-size: 9px;
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+        gap: 6px;
+      }
+      
+      .btn {
+        font-size: 11px;
+        padding: 8px;
+      }
+      
+      .empty-state {
+        padding: 30px 10px;
+      }
+      
+      .empty-icon {
+        font-size: 50px;
+      }
+      
+      .empty-state h3 {
+        font-size: 18px;
+      }
+      
+      .empty-state p {
+        font-size: 13px;
+      }
+    }
+    
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .fade-in {
+      animation: fadeInUp 0.5s ease-out;
+    }
+  </style>
+</head>
+<body>
+  <!-- Background elements -->
+  <div class="bg-circle circle-1"></div>
+  <div class="bg-circle circle-2"></div>
+  <div class="bg-circle circle-3"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="logo">SecureSphere Chat</div>
+    <div class="search-container">
+      <i class="fas fa-search"></i>
+      <input type="text" id="searchInput" placeholder="Search friends..." />
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="main-container">
+    <h1 class="section-title">Your Friends</h1>
+    
+    <div id="friendsContainer">
+      <div class="empty-state">
+        <div class="empty-icon"><i class="fas fa-user-friends"></i></div>
+        <h3>Loading Friends...</h3>
+        <p>Please wait while we load your friend list</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Action Buttons -->
+  <div class="floating-buttons">
+    <button class="floating-btn bot" onclick="openBot()" title="AI Bot">
+      <i class="fas fa-robot"></i>
+    </button>
+    <button class="floating-btn" onclick="addFriend()" title="Add Friend">
+      <i class="fas fa-user-plus"></i>
+    </button>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <div class="nav-item active" onclick="navigate('chat')">
+      <i class="fas fa-comments"></i>
+      <span>Chats</span>
+    </div>
+    <div class="nav-item" onclick="navigate('group')">
+      <i class="fas fa-users"></i>
+      <span>Groups</span>
+    </div>
+    <div class="nav-item" onclick="navigate('call')">
+      <i class="fas fa-phone"></i>
+      <span>Calls</span>
+    </div>
+    <div class="nav-item" onclick="navigate('settings')">
+      <i class="fas fa-cog"></i>
+      <span>Settings</span>
+    </div>
+  </nav>
+
+  <script>
+    // DOM Elements
+    const elements = {
+      friendsContainer: document.getElementById('friendsContainer'),
+      searchInput: document.getElementById('searchInput')
+    };
+
+    // Current User
+    let currentUser = null;
+    let friendsList = [];
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', function() {
+      currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+      
+      if (!currentUser.uid) {
+        showErrorState('Please Login', 'You need to login to view your friends', 'fa-sign-in-alt');
+        return;
+      }
+      
+      loadFriends();
+      setupEventListeners();
+      animateElements();
+    });
+
+    // Setup event listeners
+    function setupEventListeners() {
+      // Search functionality
+      elements.searchInput.addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        filterFriends(searchTerm);
+      });
+      
+      // Keyboard shortcuts (disable on mobile to avoid virtual keyboard issues)
+      if (window.innerWidth > 768) {
+        document.addEventListener('keydown', function(e) {
+          if (e.ctrlKey && e.key === '/') {
+            e.preventDefault();
+            elements.searchInput.focus();
+          }
+        });
+      }
+    }
+
+    // Load friends from server
+    async function loadFriends() {
+      try {
+        showLoadingState();
+        
+        const response = await fetch(`/get-friends?uid=${currentUser.uid}`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to load friends');
+        }
+        
+        const friends = await response.json();
+        friendsList = friends;
+        
+        if (friends.length === 0) {
+          showEmptyState();
+        } else {
+          renderFriends(friends);
+        }
+      } catch (error) {
+        console.error('Error loading friends:', error);
+        showErrorState('Connection Error', 'Failed to load friends. Please check your connection.', 'fa-wifi');
+      }
+    }
+
+    // Render friends list
+    function renderFriends(friends) {
+      elements.friendsContainer.innerHTML = friends.map((friend, index) => `
+        <div class="friend-card fade-in" style="animation-delay: ${index * 0.1}s" onclick="openChat('${friend.uid}', '${friend.name}')">
+          <div class="friend-header">
+            <div class="friend-avatar">${getInitials(friend.name)}</div>
+            <div class="friend-info">
+              <div class="friend-name">
+                ${friend.name}
+                <span class="status ${friend.online ? 'online' : 'offline'}"></span>
+              </div>
+              <div class="friend-uid">UID: ${friend.uid || 'N/A'}</div>
+            </div>
+          </div>
+          <div class="action-buttons">
+            <button class="btn btn-primary" onclick="event.stopPropagation(); openChat('${friend.uid}', '${friend.name}')">
+              <i class="fas fa-comment"></i> Chat
+            </button>
+            <button class="btn btn-secondary" onclick="event.stopPropagation(); viewProfile('${friend.uid}')">
+              <i class="fas fa-user"></i> Profile
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Filter friends based on search
+    function filterFriends(searchTerm) {
+      if (!searchTerm) {
+        renderFriends(friendsList);
+        return;
+      }
+      
+      const filtered = friendsList.filter(friend => 
+        friend.name.toLowerCase().includes(searchTerm) || 
+        (friend.uid && friend.uid.toLowerCase().includes(searchTerm))
+      );
+      
+      if (filtered.length === 0) {
+        elements.friendsContainer.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon"><i class="fas fa-search"></i></div>
+            <h3>No Friends Found</h3>
+            <p>No friends match your search criteria</p>
+          </div>
+        `;
+      } else {
+        renderFriends(filtered);
+      }
+    }
+
+    // Get initials for avatar
+    function getInitials(name) {
+      return name.split(' ').map(word => word[0]).join('').toUpperCase().substring(0, 2);
+    }
+
+    // Navigation functions
+    function navigate(page) {
+      const navItems = document.querySelectorAll('.nav-item');
+      navItems.forEach(item => item.classList.remove('active'));
+      
+      event.currentTarget.classList.add('active');
+      
+      switch(page) {
+        case 'chat':
+          // Already on chat page
+          break;
+        case 'group':
+          window.location.href = '/group.html';
+          break;
+        case 'call':
+          window.location.href = '/call.html';
+          break;
+        case 'settings':
+          window.location.href = '/settings.html';
+          break;
+      }
+    }
+
+    function openChat(uid, name) {
+      localStorage.setItem('receiver', name);
+      localStorage.setItem('receiverUid', uid);
+      window.location.href = `/privatechat.html?uid=${uid}`;
+    }
+
+    function viewProfile(uid) {
+      alert(`View profile for UID: ${uid}`);
+    }
+
+    function openBot() {
+      window.location.href = '/home.html';
+    }
+
+    function addFriend() {
+      window.location.href = '/friends.html';
+    }
+
+    // UI State functions
+    function showLoadingState() {
+      elements.friendsContainer.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon"><i class="fas fa-spinner fa-spin"></i></div>
+          <h3>Loading Friends...</h3>
+          <p>Please wait while we load your friend list</p>
+        </div>
+      `;
+    }
+
+    function showEmptyState() {
+      elements.friendsContainer.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon"><i class="fas fa-user-plus"></i></div>
+          <h3>No Friends Yet</h3>
+          <p>Start by adding some friends to chat with</p>
+          <button class="btn btn-primary" onclick="addFriend()" style="margin-top: 15px;">
+            <i class="fas fa-user-plus"></i> Add Friends
+          </button>
+        </div>
+      `;
+    }
+
+    function showErrorState(title, message, icon) {
+      elements.friendsContainer.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon" style="color: #ff6b6b;"><i class="fas ${icon}"></i></div>
+          <h3>${title}</h3>
+          <p>${message}</p>
+          <button class="btn btn-primary" onclick="loadFriends()" style="margin-top: 15px;">
+            <i class="fas fa-redo"></i> Try Again
+          </button>
+        </div>
+      `;
+    }
+
+    // Animation function
+    function animateElements() {
+      const cards = document.querySelectorAll('.friend-card');
+      cards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+      });
+    }
+
+    // Refresh friends list every 30 seconds to update online status
+
+setInterval(() => { if (currentUser && currentUser.uid) { } loadFriends(); }, 30000);
+
+</script>
+
+</body>
+
+</html>

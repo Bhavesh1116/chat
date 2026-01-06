@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register | SecureSphere Chat</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 100%);
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    /* Animated background elements */
+    .bg-circle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(102, 204, 255, 0.1);
+      z-index: -1;
+    }
+    
+    .circle-1 {
+      width: 300px;
+      height: 300px;
+      top: -100px;
+      left: -100px;
+    }
+    
+    .circle-2 {
+      width: 200px;
+      height: 200px;
+      bottom: -50px;
+      right: -50px;
+      background: rgba(76, 175, 80, 0.1);
+    }
+    
+    .circle-3 {
+      width: 150px;
+      height: 150px;
+      top: 50%;
+      right: 20%;
+      background: rgba(255, 193, 7, 0.1);
+    }
+    
+    .signup-container {
+      display: flex;
+      width: 900px;
+      height: 550px;
+      background: rgba(28, 28, 28, 0.8);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(10px);
+    }
+    
+    .signup-left {
+      flex: 1;
+      background: linear-gradient(135deg, #6cf 0%, #39f 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 40px;
+      color: #000;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .signup-left::before {
+      content: '';
+      position: absolute;
+      width: 200%;
+      height: 200%;
+      background: rgba(255, 255, 255, 0.1);
+      transform: rotate(45deg);
+      animation: shine 8s infinite linear;
+    }
+    
+    @keyframes shine {
+      0% { left: -100%; top: -100%; }
+      100% { left: 100%; top: 100%; }
+    }
+    
+    .logo {
+      font-size: 42px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      z-index: 1;
+    }
+    
+    .welcome-text {
+      text-align: center;
+      z-index: 1;
+    }
+    
+    .welcome-text h2 {
+      font-size: 28px;
+      margin-bottom: 15px;
+    }
+    
+    .welcome-text p {
+      font-size: 16px;
+      opacity: 0.9;
+    }
+    
+    .features {
+      margin-top: 40px;
+      z-index: 1;
+    }
+    
+    .feature {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .feature i {
+      font-size: 20px;
+      margin-right: 15px;
+      background: rgba(0, 0, 0, 0.2);
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+    }
+    
+    .signup-right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 40px;
+    }
+    
+    .signup-box {
+      width: 100%;
+      max-width: 350px;
+    }
+    
+    .signup-box h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 28px;
+      font-weight: 600;
+      background: linear-gradient(45deg, #6cf, #39f);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .input-group {
+      position: relative;
+      margin-bottom: 25px;
+    }
+    
+    .input-group i {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #6cf;
+      font-size: 18px;
+    }
+    
+    .input-group input {
+      width: 100%;
+      padding: 15px 15px 15px 45px;
+      background: #2c2c2c;
+      border: 2px solid transparent;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+    
+    .input-group input:focus {
+      border-color: #6cf;
+      outline: none;
+      box-shadow: 0 0 15px rgba(102, 204, 255, 0.3);
+    }
+    
+    .input-group input::placeholder {
+      color: #888;
+    }
+    
+    .signup-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(45deg, #6cf, #39f);
+      color: #000;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(102, 204, 255, 0.4);
+    }
+    
+    .signup-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(102, 204, 255, 0.6);
+    }
+    
+    .signup-btn:active {
+      transform: translateY(0);
+    }
+    
+    .message {
+      text-align: center;
+      font-size: 14px;
+      margin-top: 20px;
+      padding: 12px;
+      border-radius: 8px;
+      display: none;
+    }
+    
+    .message.error {
+      background: #d32f2f;
+      color: white;
+      animation: shake 0.5s ease;
+    }
+    
+    .message.warning {
+      background: #f57c00;
+      color: white;
+    }
+    
+    .message.success {
+      background: #388e3c;
+      color: white;
+    }
+    
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-5px); }
+      40%, 80% { transform: translateX(5px); }
+    }
+    
+    .login-link {
+      text-align: center;
+      margin-top: 25px;
+      font-size: 14px;
+      color: #888;
+    }
+    
+    .login-link a {
+      color: #6cf;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    
+    .login-link a:hover {
+      text-decoration: underline;
+    }
+    
+    .loader {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top: 3px solid #6cf;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .password-toggle {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #888;
+      cursor: pointer;
+      font-size: 18px;
+    }
+    
+    /* Responsive design */
+    @media (max-width: 900px) {
+      .signup-container {
+        flex-direction: column;
+        height: auto;
+        width: 100%;
+        max-width: 500px;
+      }
+      
+      .signup-left {
+        padding: 30px;
+      }
+      
+      .features {
+        display: none;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .signup-right {
+        padding: 20px;
+      }
+      
+      .signup-box {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Background elements -->
+  <div class="bg-circle circle-1"></div>
+  <div class="bg-circle circle-2"></div>
+  <div class="bg-circle circle-3"></div>
+
+  <div class="signup-container">
+    <div class="signup-left">
+      <div class="logo">SecureSphere</div>
+      <div class="welcome-text">
+        <h2>Join Our Community</h2>
+        <p>Create an account to start chatting with AI</p>
+      </div>
+      <div class="features">
+        <div class="feature">
+          <i class="fas fa-robot"></i>
+          <span>Smart AI Assistant</span>
+        </div>
+        <div class="feature">
+          <i class="fas fa-comments"></i>
+          <span>Real-time Chat</span>
+        </div>
+        <div class="feature">
+          <i class="fas fa-shield-alt"></i>
+          <span>Secure & Private</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="signup-right">
+      <div class="signup-box">
+        <h2>Create Account</h2>
+        
+        <div class="input-group">
+          <i class="fas fa-user"></i>
+          <input type="text" id="name" placeholder="Full Name" />
+        </div>
+        
+        <div class="input-group">
+          <i class="fas fa-envelope"></i>
+          <input type="email" id="email" placeholder="Email" />
+        </div>
+        
+        <div class="input-group">
+          <i class="fas fa-lock"></i>
+          <input type="password" id="password" placeholder="Password" />
+          <span class="password-toggle" id="passwordToggle">
+            <i class="far fa-eye"></i>
+          </span>
+        </div>
+        
+        <button class="signup-btn" id="signupButton">
+          <span id="buttonText">Sign Up</span>
+          <div class="loader" id="loader"></div>
+        </button>
+        
+        <div class="message" id="msg"></div>
+        
+        <div class="login-link">
+          Already have an account? <a href="/login.html">Login</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const nameInput = document.getElementById("name");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const passwordToggle = document.getElementById("passwordToggle");
+    const signupButton = document.getElementById("signupButton");
+    const buttonText = document.getElementById("buttonText");
+    const loader = document.getElementById("loader");
+    const msg = document.getElementById("msg");
+
+    // Password toggle functionality
+    passwordToggle.addEventListener("click", function() {
+      if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        passwordToggle.innerHTML = '<i class="far fa-eye-slash"></i>';
+      } else {
+        passwordInput.type = "password";
+        passwordToggle.innerHTML = '<i class="far fa-eye"></i>';
+      }
+    });
+
+    async function register() {
+      const name = nameInput.value.trim();
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
+
+      // Hide any previous messages
+      msg.style.display = "none";
+      
+      // Validate inputs
+      if (!name || !email || !password) {
+        showMessage("⚠️ All fields are required!", "warning");
+        return;
+      }
+
+      // Email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        showMessage("⚠️ Please enter a valid email address!", "warning");
+        return;
+      }
+
+      // Show loading state
+      buttonText.style.display = "none";
+      loader.style.display = "block";
+      signupButton.disabled = true;
+
+      try {
+        const res = await fetch("/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, password })
+        });
+
+        const text = await res.text();
+        
+        if (text.toLowerCase().includes("success")) {
+          showMessage("🎉 Account created successfully! Redirecting...", "success");
+          setTimeout(() => {
+            window.location.href = "/login.html";
+          }, 2000);
+        } else {
+          showMessage(text, "error");
+        }
+      } catch (err) {
+        showMessage("❌ Server error. Please try again.", "error");
+      } finally {
+        // Restore button state
+        buttonText.style.display = "block";
+        loader.style.display = "none";
+        signupButton.disabled = false;
+      }
+    }
+
+    function showMessage(message, type) {
+      msg.textContent = message;
+      msg.className = `message ${type}`;
+      msg.style.display = "block";
+      
+      // Auto-hide success messages after 5 seconds
+      if (type === "success") {
+        setTimeout(() => {
+          msg.style.display = "none";
+        }, 5000);
+      }
+    }
+
+    // Add event listeners
+    signupButton.addEventListener("click", register);
+    
+    // Submit form on Enter key press
+    const inputs = [nameInput, emailInput, passwordInput];
+    inputs.forEach(input => {
+      input.addEventListener("keypress", function(e) {
+        if (e.key === "Enter") {
+          register();
+        }
+      });
+      
+      // Hide message when user starts typing
+      input.addEventListener("input", function() {
+        if (msg.style.display === "block") {
+          msg.style.display = "none";
+        }
+      });
+    });
+  </script>
+</body>
+</html>

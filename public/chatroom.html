@@ -1,0 +1,306 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BotX Chatroom</title>
+  <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #111;
+      color: #fff;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .topbar {
+      background: #121212;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+    }
+    .toggle {
+      font-size: 24px;
+      color: #6cf;
+      cursor: pointer;
+    }
+    .sidebar {
+      width: 230px;
+      background: #121212;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      z-index: 10;
+    }
+    .sidebar.active {
+      transform: translateX(0);
+    }
+    .sidebar .close-btn {
+      font-size: 22px;
+      color: #f66;
+      align-self: flex-end;
+      cursor: pointer;
+    }
+    .sidebar a {
+      text-decoration: none;
+      color: #6cf;
+      font-weight: bold;
+    }
+    #chat-box {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+    .message {
+      margin: 8px;
+      padding: 10px;
+      border-radius: 10px;
+      max-width: 70%;
+      word-wrap: break-word;
+      position: relative;
+      animation: fadein 0.3s ease;
+    }
+    .me {
+      background: #6cf;
+      color: #000;
+      margin-left: auto;
+    }
+    .other {
+      background: #333;
+      margin-right: auto;
+    }
+    .reply {
+      font-size: 12px;
+      background: rgba(255,255,255,0.1);
+      padding: 5px;
+      border-radius: 5px;
+      margin-bottom: 4px;
+    }
+    .reaction {
+      font-size: 18px;
+      margin-top: 4px;
+      text-align: center;
+    }
+    .input-area {
+      display: flex;
+      padding: 10px;
+      background: #222;
+      gap: 8px;
+      align-items: center;
+    }
+    input[type="text"] {
+      flex: 1;
+      background: #333;
+      color: #fff;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+    }
+    button {
+      background: #6cf;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 8px;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .typing {
+      font-size: 12px;
+      text-align: center;
+      font-style: italic;
+      opacity: 0.6;
+    }
+    input[type="file"] {
+      display: none;
+    }
+    label {
+      cursor: pointer;
+    }
+    @keyframes fadein {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="toggle" onclick="toggleSidebar()">☰</div>
+    <h2>Chat Room</h2>
+    <div></div>
+  </div>  <div class="sidebar" id="sidebar">
+    <div class="close-btn" onclick="toggleSidebar()">×</div>
+    <a href="/dashboard.html">Dashboard</a>
+    <a href="/home.html">Bot Assistant</a>
+    <a href="/chatroom.html">Chat Room</a>
+    <a href="/privatechat.html">Private Chat</a>
+    <a href="/history.html">Bot History</a>
+    <a href="/friends.html">Friends</a>
+    <a href="/login.html" onclick="logout()">Logout</a>
+  </div>  <div id="chat-box"></div>
+  <div id="typing" class="typing"></div>  <div class="input-area">
+    <label for="file-input">📎</label>
+    <input type="file" id="file-input" accept="image/*,application/pdf" />
+    <input type="text" id="msgInput" placeholder="Type a message..." />
+    <button onclick="startVoice()">🎤</button>
+    <button onclick="sendMsg()">Send</button>
+  </div>  <script>
+    const socket = io("https://real-time-chat-1-pa6c.onrender.com");
+    const userObj = JSON.parse(localStorage.getItem("user") || '{}');
+    const name = userObj.name || prompt("Enter your name:");
+    socket.emit("set_name", name);
+
+    let botActive = false;
+    let replyTo = null;
+
+    const chatBox = document.getElementById("chat-box");
+    const msgInput = document.getElementById("msgInput");
+    const typingDiv = document.getElementById("typing");
+    const fileInput = document.getElementById("file-input");
+
+    function sendMsg() {
+      const msg = msgInput.value.trim();
+      if (!msg) return;
+
+      if (msg === '>>bot') { botActive = true; socket.emit("message", msg); msgInput.value = ''; return; }
+      if (msg === '<<bot') { botActive = false; socket.emit("message", msg); msgInput.value = ''; return; }
+
+      const final = replyTo ? `Reply to [${replyTo}]: ${msg}` : msg;
+      socket.emit("message", final);
+      msgInput.value = '';
+      replyTo = null;
+    }
+
+    function startVoice() {
+      const rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      rec.lang = "en-IN";
+      rec.start();
+      rec.onresult = e => {
+        const transcript = e.results[0][0].transcript;
+        msgInput.value = transcript;
+        sendMsg();
+      };
+    }
+
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (file.type.startsWith("image/")) {
+          socket.emit("message", `[img]${reader.result}`);
+        } else {
+          socket.emit("message", `[file]${reader.result}`);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function addMessage(sender, text) {
+      const div = document.createElement("div");
+      div.className = `message ${sender === name ? 'me' : 'other'}`;
+
+      if (text.startsWith("[img]")) {
+        const img = document.createElement("img");
+        img.src = text.replace("[img]", "");
+        img.style.maxWidth = "180px";
+        img.style.borderRadius = "10px";
+        div.appendChild(img);
+      } else if (text.startsWith("[file]")) {
+        const link = document.createElement("a");
+        link.href = text.replace("[file]", "");
+        link.innerText = "Download File";
+        link.target = "_blank";
+        link.style.color = "#6cf";
+        div.appendChild(link);
+      } else if (text.includes("Reply to [")) {
+        const parts = text.split("]:");
+        const reply = document.createElement("div");
+        reply.className = "reply";
+        reply.innerText = parts[0].replace("Reply to [", "Reply: ");
+        div.appendChild(reply);
+        div.innerHTML += parts[1];
+      } else {
+        div.innerHTML += `<b>${sender}:</b> ${text}`;
+      }
+
+      div.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+        showReaction(div);
+      });
+
+      div.addEventListener("dblclick", () => {
+        replyTo = text;
+        alert(`Now replying to: ${text}`);
+      });
+
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function showReaction(div) {
+      const emojis = ["👍", "❤️", "😂", "😮", "😢", "🙏"];
+      const popup = document.createElement("div");
+      popup.style.position = "absolute";
+      popup.style.bottom = "30px";
+      popup.style.left = "50%";
+      popup.style.transform = "translateX(-50%)";
+      popup.style.background = "#222";
+      popup.style.padding = "5px 10px";
+      popup.style.borderRadius = "8px";
+      popup.style.display = "flex";
+      popup.style.gap = "5px";
+
+      emojis.forEach(emoji => {
+        const btn = document.createElement("button");
+        btn.innerText = emoji;
+        btn.style.background = "transparent";
+        btn.style.border = "none";
+        btn.style.fontSize = "18px";
+        btn.onclick = () => {
+          const react = document.createElement("div");
+          react.className = "reaction";
+          react.innerText = emoji;
+          div.appendChild(react);
+          popup.remove();
+        };
+        popup.appendChild(btn);
+      });
+
+      div.appendChild(popup);
+    }
+
+    socket.on("message", (data) => {
+      addMessage(data.sender, data.text);
+    });
+
+    socket.on("typing", (user) => {
+      typingDiv.textContent = `${user} is typing...`;
+      setTimeout(() => typingDiv.textContent = '', 1500);
+    });
+
+    msgInput.addEventListener("input", () => {
+      socket.emit("typing", name);
+    });
+
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("active");
+    }
+
+    function logout() {
+      localStorage.clear();
+    }
+  </script></body>
+</html>

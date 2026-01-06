@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chat App Settings | SecureSphere Chat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 100%);
+            color: #fff;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            touch-action: manipulation;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Animated background elements */
+        .bg-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(102, 204, 255, 0.1);
+            z-index: -1;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .circle-1 {
+            width: 200px;
+            height: 200px;
+            top: -80px;
+            left: -80px;
+            animation-delay: 0s;
+        }
+
+        .circle-2 {
+            width: 150px;
+            height: 150px;
+            bottom: -40px;
+            right: -40px;
+            background: rgba(76, 175, 80, 0.1);
+            animation-delay: 2s;
+        }
+
+        .circle-3 {
+            width: 100px;
+            height: 100px;
+            top: 50%;
+            right: 10%;
+            background: rgba(255, 193, 7, 0.1);
+            animation-delay: 4s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(180deg); }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #080808;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #6cf;
+            border-radius: 4px;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(28, 28, 28, 0.95);
+            padding: 12px 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid rgba(102, 204, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            background: linear-gradient(45deg, #6cf, #39f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .back-btn {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #fff;
+            font-size: 18px;
+            background: rgba(102, 204, 255, 0.2);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            touch-action: manipulation;
+        }
+
+        .back-btn:hover {
+            background: rgba(102, 204, 255, 0.3);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .back-btn:focus {
+            outline: 2px solid #6cf;
+            outline-offset: 2px;
+        }
+
+        /* Container */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 70px 20px 80px;
+            flex: 1;
+            overscroll-behavior-y: contain;
+        }
+
+        /* Settings Grid */
+        .settings-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .settings-card {
+            background: rgba(28, 28, 28, 0.85);
+            border-radius: 12px;
+            border: 1px solid rgba(102, 204, 255, 0.1);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            padding: 25px;
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.3s ease-out;
+        }
+
+        .settings-card:hover {
+            transform: translateY(-5px);
+            background: rgba(36, 36, 36, 0.85);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-icon {
+            font-size: 24px;
+            color: #6cf;
+            margin-right: 15px;
+        }
+
+        .card-header div {
+            flex: 1;
+        }
+
+        .card-header div div:first-child {
+            font-size: 20px;
+            font-weight: 600;
+            color: #6cf;
+        }
+
+        .card-header div div:last-child {
+            font-size: 14px;
+            color: #888;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(102, 204, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .setting-item:hover {
+            background: rgba(102, 204, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-info h3 {
+            font-size: 16px;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .setting-info p {
+            font-size: 13px;
+            color: #888;
+        }
+
+        .setting-item i {
+            color: #6cf;
+        }
+
+        /* Toggle Switch */
+        .toggle {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #475569;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #fff;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #6cf;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        .toggle:focus-within {
+            outline: 2px solid #6cf;
+            outline-offset: 2px;
+        }
+
+        /* Theme Options */
+        .theme-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .theme-option {
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            background: rgba(102, 204, 255, 0.1);
+            touch-action: manipulation;
+        }
+
+        .theme-option.active {
+            border-color: #6cf;
+            transform: scale(1.05);
+        }
+
+        .theme-option:focus {
+            outline: 2px solid #6cf;
+            outline-offset: 2px;
+        }
+
+        .theme-preview {
+            width: 100%;
+            height: 40px;
+            border-radius: 5px;
+            margin-bottom: 8px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            margin-top: 15px;
+            min-height: 44px;
+            touch-action: manipulation;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #6cf, #39f);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 204, 255, 0.3);
+        }
+
+        .btn-primary:focus {
+            outline: 2px solid #6cf;
+            outline-offset: 2px;
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #ff6b6b, #ff4040);
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-danger:focus {
+            outline: 2px solid #ff6b6b;
+            outline-offset: 2px;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(28, 28, 28, 0.95);
+            color: #fff;
+            padding: 12px 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border: 1px solid rgba(102, 204, 255, 0.2);
+            backdrop-filter: blur(8px);
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        .toast.error {
+            border-color: rgba(255, 107, 107, 0.3);
+            background: rgba(255, 107, 107, 0.95);
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background: rgba(28, 28, 28, 0.95);
+            padding: 12px 0;
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(102, 204, 255, 0.1);
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            padding: 10px 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            color: #888;
+            min-width: 60px;
+            touch-action: manipulation;
+        }
+
+        .nav-item.active {
+            color: #6cf;
+            background: rgba(102, 204, 255, 0.15);
+        }
+
+        .nav-item i {
+            font-size: 18px;
+        }
+
+        .nav-item span {
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            color: #6cf;
+            transform: translateY(-2px);
+        }
+
+        .nav-item:focus {
+            outline: 2px solid #6cf;
+            outline-offset: 2px;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .circle-1, .circle-2, .circle-3 {
+                display: none;
+            }
+
+            .header {
+                padding: 10px 12px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .header p {
+                font-size: 13px;
+            }
+
+            .back-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+            }
+
+            .container {
+                padding: 60px 15px 70px;
+            }
+
+            .settings-grid {
+                gap: 15px;
+            }
+
+            .settings-card {
+                padding: 20px;
+            }
+
+            .card-header div div:first-child {
+                font-size: 18px;
+            }
+
+            .card-header div div:last-child {
+                font-size: 13px;
+            }
+
+            .card-icon {
+                font-size: 20px;
+            }
+
+            .setting-info h3 {
+                font-size: 15px;
+            }
+
+            .setting-info p {
+                font-size: 12px;
+            }
+
+            .theme-options {
+                grid-template-columns: 1fr;
+            }
+
+            .theme-option {
+                padding: 12px;
+            }
+
+            .btn {
+                padding: 10px;
+                font-size: 14px;
+                min-height: 40px;
+            }
+
+            .toast {
+                bottom: 90px;
+                padding: 10px 20px;
+                font-size: 13px;
+            }
+
+            .bottom-nav {
+                padding: 10px 0;
+            }
+
+            .nav-item {
+                padding: 8px 10px;
+            }
+
+            .nav-item i {
+                font-size: 16px;
+            }
+
+            .nav-item span {
+                font-size: 9px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 8px 10px;
+            }
+
+            .header h1 {
+                font-size: 18px;
+            }
+
+            .header p {
+                font-size: 12px;
+            }
+
+            .back-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 14px;
+            }
+
+            .container {
+                padding: 50px 10px 60px;
+            }
+
+            .settings-card {
+                padding: 15px;
+            }
+
+            .card-header div div:first-child {
+                font-size: 16px;
+            }
+
+            .card-header div div:last-child {
+                font-size: 12px;
+            }
+
+            .card-icon {
+                font-size: 18px;
+            }
+
+            .setting-info h3 {
+                font-size: 14px;
+            }
+
+            .setting-info p {
+                font-size: 11px;
+            }
+
+            .theme-option {
+                padding: 10px;
+            }
+
+            .btn {
+                padding: 8px;
+                font-size: 13px;
+                min-height: 36px;
+            }
+
+            .toast {
+                bottom: 80px;
+                padding: 8px 15px;
+                font-size: 12px;
+            }
+
+            .bottom-nav {
+                padding: 8px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background elements -->
+    <div class="bg-circle circle-1"></div>
+    <div class="bg-circle circle-2"></div>
+    <div class="bg-circle circle-3"></div>
+
+    <div class="header">
+        <a href="dashboard.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <div>
+            <h1><i class="fas fa-cogs"></i> Chat Settings</h1>
+            <p>Manage your preferences and account</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="settings-grid">
+            <!-- Profile Settings -->
+            <div class="settings-card">
+                <div class="card-header">
+                    <i class="fas fa-user card-icon"></i>
+                    <div>
+                        <div>Profile Settings</div>
+                        <div>Manage your personal information</div>
+                    </div>
+                </div>
+                
+                <div class="setting-item" onclick="redirectToProfile()">
+                    <div class="setting-info">
+                        <h3>Edit Profile</h3>
+                        <p>Update your name, email, and profile picture</p>
+                    </div>
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+
+                <div class="setting-item" onclick="redirectToPrivacy()">
+                    <div class="setting-info">
+                        <h3>Privacy Settings</h3>
+                        <p>Control who can see your information</p>
+                    </div>
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+
+            <!-- Theme Settings -->
+            <div class="settings-card">
+                <div class="card-header">
+                    <i class="fas fa-palette card-icon"></i>
+                    <div>
+                        <div>Theme & Appearance</div>
+                        <div>Customize the look and feel</div>
+                    </div>
+                </div>
+                
+                <div class="theme-options">
+                    <div class="theme-option active" data-theme="cyan">
+                        <div class="theme-preview" style="background: linear-gradient(135deg, #6cf, #39f);"></div>
+                        <div>Cyan</div>
+                    </div>
+                    <div class="theme-option" data-theme="blue">
+                        <div class="theme-preview" style="background: linear-gradient(135deg, #3b82f6, #2563eb);"></div>
+                        <div>Blue</div>
+                    </div>
+                    <div class="theme-option" data-theme="green">
+                        <div class="theme-preview" style="background: linear-gradient(135deg, #10b981, #059669);"></div>
+                        <div>Green</div>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="applyTheme()">
+                    <i class="fas fa-check"></i> Apply Theme
+                </button>
+            </div>
+
+            <!-- About App -->
+            <div class="settings-card">
+                <div class="card-header">
+                    <i class="fas fa-info-circle card-icon"></i>
+                    <div>
+                        <div>About This App</div>
+                        <div>Real-time chat application information</div>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h3>Version</h3>
+                        <p>2.5.0 (Latest)</p>
+                    </div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h3>Developed By</h3>
+                        <p>Sunny Chaurasiya & Bhavesh Mali</p>
+                    </div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h3>Features</h3>
+                        <p>Real-time messaging, Voice/Video calls, Groups</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Actions -->
+            <div class="settings-card">
+                <div class="card-header">
+                    <i class="fas fa-user-cog card-icon"></i>
+                    <div>
+                        <div>Account Management</div>
+                        <div>Manage your account session</div>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+                
+                <button class="btn btn-danger" onclick="deleteAccount()">
+                    <i class="fas fa-trash-alt"></i> Delete Account
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <div class="nav-item" onclick="navigate('chat')">
+            <i class="fas fa-comments"></i>
+            <span>Chats</span>
+        </div>
+        <div class="nav-item" onclick="navigate('group')">
+            <i class="fas fa-users"></i>
+            <span>Groups</span>
+        </div>
+        <div class="nav-item" onclick="navigate('call')">
+            <i class="fas fa-phone"></i>
+            <span>Calls</span>
+        </div>
+        <div class="nav-item active" onclick="navigate('settings')">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+        </div>
+    </nav>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Settings saved successfully!</span>
+    </div>
+
+    <script>
+        // Check user on load
+        document.addEventListener('DOMContentLoaded', function() {
+            const userData = localStorage.getItem("user");
+            
+            if (!userData) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            const user = JSON.parse(userData);
+            console.log('Current user:', user);
+            
+            loadSettings(user);
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Theme selection
+            document.querySelectorAll('.theme-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.theme-option').forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                });
+            });
+        }
+
+        // Navigation function
+        function navigate(page) {
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => item.classList.remove('active'));
+            
+            event.currentTarget.classList.add('active');
+            
+            switch (page) {
+                case 'chat':
+                    window.location.href = '/main.html';
+                    break;
+                case 'group':
+                    window.location.href = '/group.html';
+                    break;
+                case 'call':
+                    window.location.href = '/call.html';
+                    break;
+                case 'settings':
+                    // Already on settings
+                    break;
+            }
+        }
+
+        function redirectToProfile() {
+            window.location.href = 'dashboard.html';
+        }
+
+        function redirectToPrivacy() {
+            window.location.href = 'dashboard.html?tab=privacy';
+        }
+
+        function applyTheme() {
+            const selectedTheme = document.querySelector('.theme-option.active').dataset.theme;
+            
+            document.body.style.background = getThemeBackground(selectedTheme);
+            
+            showToast('Theme applied successfully!');
+            
+            const userData = localStorage.getItem("user");
+            if (userData) {
+                const user = JSON.parse(userData);
+                saveSettings(user);
+            }
+        }
+
+        function getThemeBackground(theme) {
+            switch(theme) {
+                case 'blue':
+                    return 'linear-gradient(135deg, #1e3a8a, #3b82f6)';
+                case 'green':
+                    return 'linear-gradient(135deg, #065f46, #10b981)';
+                default:
+                    return 'linear-gradient(135deg, #0f0f0f, #1a1a2e)';
+            }
+        }
+
+        async function loadSettings(user) {
+            try {
+                if (!user?.uid) return;
+                
+                const response = await fetch(`/get-settings?userId=${user.uid}`);
+                if (response.ok) {
+                    const settings = await response.json();
+                    
+                    if (settings.theme) {
+                        document.querySelectorAll('.theme-option').forEach(opt => {
+                            opt.classList.remove('active');
+                            if (opt.dataset.theme === settings.theme) {
+                                opt.classList.add('active');
+                                document.body.style.background = getThemeBackground(settings.theme);
+                            }
+                        });
+                    }
+                }
+            } catch (error) {
+                console.log('Using default settings');
+            }
+        }
+
+        async function saveSettings(user) {
+            try {
+                if (!user?.uid) return;
+                
+                const settings = {
+                    theme: document.querySelector('.theme-option.active').dataset.theme,
+                    updatedAt: new Date()
+                };
+
+                await fetch('/save-settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        userId: user.uid, 
+                        settings 
+                    })
+                });
+
+                showToast('Settings saved successfully!');
+            } catch (error) {
+                showToast('Settings saved locally');
+            }
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem("user");
+                localStorage.removeItem("receiver");
+                localStorage.removeItem("receiverUid");
+                window.location.href = 'login.html';
+            }
+        }
+
+        function deleteAccount() {
+            if (confirm('Permanently delete your account? This cannot be undone.')) {
+                const userData = localStorage.getItem("user");
+                
+                if (userData) {
+                    const user = JSON.parse(userData);
+                    
+                    if (user?.uid) {
+                        fetch('/delete-account', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ userId: user.uid })
+                        });
+                    }
+                }
+                
+                localStorage.removeItem("user");
+                localStorage.removeItem("receiver"); 
+                localStorage.removeItem("receiverUid");
+                window.location.href = 'login.html';
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
+
+
